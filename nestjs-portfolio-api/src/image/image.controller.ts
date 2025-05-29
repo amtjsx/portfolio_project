@@ -1,38 +1,41 @@
 import {
-  Controller,
-  Get,
-  Post,
+  BadRequestException,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseInterceptors,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
   Query,
   Res,
-  BadRequestException,
-  NotFoundException,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
 } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiConsumes,
   ApiBody,
+  ApiConsumes,
+  ApiOperation,
   ApiParam,
   ApiQuery,
+  ApiResponse,
+  ApiTags,
 } from "@nestjs/swagger";
-import { ImageService } from "./image.service";
-import { CreateImageDto } from "./dto/create-image.dto";
-import { UpdateImageDto } from "./dto/update-image.dto";
-import { ImageQueryDto } from "./dto/image-query.dto";
-import { GenerateVariantDto } from "./dto/generate-variant.dto";
-import { ImageSize, ImageFormat } from "./models/image-variant.model";
-import { ImageCategory } from "./models/image.model";
 import { Response } from "express";
 import { diskStorage } from "multer";
 import { extname } from "path";
-import { Express } from "express";
+import { CurrentUser } from "src/auth/decorators/current-user.decorator";
+import { User } from "src/user/models/user.model";
+import { GenerateVariantDto } from "./dto/generate-variant.dto";
+import { ImageQueryDto } from "./dto/image-query.dto";
+import { UpdateImageDto } from "./dto/update-image.dto";
+import { ImageService } from "./image.service";
+import { ImageFormat, ImageSize } from "./models/image-variant.model";
+import { ImageCategory } from "./models/image.model";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 
 @ApiTags("images")
 @Controller("images")
@@ -50,11 +53,6 @@ export class ImageController {
           type: "string",
           format: "binary",
           description: "Image file (JPG, PNG, GIF, WebP)",
-        },
-        userId: {
-          type: "string",
-          format: "uuid",
-          description: "User ID",
         },
         category: {
           type: "string",
@@ -98,11 +96,12 @@ export class ImageController {
           description: "Generate variants automatically",
         },
       },
-      required: ["file", "userId"],
+      required: ["file"],
     },
   })
   @ApiResponse({ status: 201, description: "Image uploaded successfully" })
   @ApiResponse({ status: 400, description: "Invalid file type or size" })
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FileInterceptor("file", {
       storage: diskStorage({
@@ -127,8 +126,9 @@ export class ImageController {
     })
   )
   async create(
-    file: Express.Multer.File,
-    @Body() createImageDto: CreateImageDto
+    @UploadedFile() file: Express.Multer.File,
+    @Body() createImageDto: any,
+    @CurrentUser() user: User
   ) {
     if (!file) {
       throw new BadRequestException("No file uploaded");
@@ -141,7 +141,7 @@ export class ImageController {
         .map((tag) => tag.trim());
     }
 
-    return this.imageService.create(createImageDto, file);
+    return this.imageService.create(createImageDto, file, user);
   }
 
   @Get()
@@ -191,6 +191,7 @@ export class ImageController {
   @ApiResponse({ status: 404, description: "Image file not found" })
   async serveFile(@Param("filename") filename: string, @Res() res: Response) {
     try {
+      console.log("filename", filename);
       const fileInfo = await this.imageService.getImageFile(filename);
 
       // Set appropriate headers
@@ -202,6 +203,7 @@ export class ImageController {
 
       res.sendFile(fileInfo.path, { root: "." });
     } catch (error) {
+      console.log("error", error);
       if (error instanceof NotFoundException) {
         res.status(404).json({ message: "Image file not found" });
       } else {
@@ -265,11 +267,9 @@ export class ImageController {
 
           res.sendFile(fileInfo.path, { root: "." });
         } catch (genError) {
-          res
-            .status(404)
-            .json({
-              message: "Image variant not found and could not be generated",
-            });
+          res.status(404).json({
+            message: "Image variant not found and could not be generated",
+          });
         }
       } else {
         res.status(500).json({ message: "Internal server error" });

@@ -1,39 +1,42 @@
 import {
+  Body,
   Controller,
-  Get,
-  Post,
-  Patch,
-  Param,
   Delete,
-  UseGuards,
-  HttpStatus,
+  Get,
   HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Request,
+  UseGuards,
 } from "@nestjs/common";
-import { SkillService } from "./skill.service";
-import { CreateSkillDto } from "./dto/create-skill.dto";
-import { UpdateSkillDto } from "./dto/update-skill.dto";
-import { SkillQueryDto } from "./dto/skill-query.dto";
-import { CreateSkillCategoryDto } from "./dto/create-skill-category.dto";
-import { UpdateSkillCategoryDto } from "./dto/update-skill-category.dto";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
-import { RolesGuard } from "../auth/guards/roles.guard";
-import { Roles } from "../auth/decorators/roles.decorator";
 import {
-  ApiTags,
+  ApiBearerAuth,
   ApiOperation,
   ApiResponse,
-  ApiBearerAuth,
+  ApiTags,
 } from "@nestjs/swagger";
+import { Roles } from "../auth/decorators/roles.decorator";
+import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { RolesGuard } from "../auth/guards/roles.guard";
+import { CreateSkillCategoryDto } from "./dto/create-skill-category.dto";
+import { CreateSkillDto } from "./dto/create-skill.dto";
+import { SkillQueryDto } from "./dto/skill-query.dto";
+import { UpdateSkillCategoryDto } from "./dto/update-skill-category.dto";
+import { UpdateSkillDto } from "./dto/update-skill.dto";
 import { ProficiencyLevel } from "./models/skill.model";
+import { SkillService } from "./skill.service";
 
 @ApiTags("skills")
 @Controller("skills")
+@UseGuards(JwtAuthGuard)
 export class SkillController {
   constructor(private readonly skillService: SkillService) {}
 
   // Skill Category Endpoints
   @Post("categories")
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles("user", "admin")
   @ApiBearerAuth()
   @ApiOperation({ summary: "Create a new skill category" })
@@ -41,18 +44,21 @@ export class SkillController {
     status: HttpStatus.CREATED,
     description: "The skill category has been successfully created.",
   })
-  createCategory(createSkillCategoryDto: CreateSkillCategoryDto) {
-    return this.skillService.createCategory(createSkillCategoryDto);
+  createCategory(
+    @Body() createSkillCategoryDto: CreateSkillCategoryDto,
+    @Request() req: any
+  ) {
+    return this.skillService.createCategory(createSkillCategoryDto, req.user);
   }
 
-  @Get("categories/user/:userId")
+  @Get("categories")
   @ApiOperation({ summary: "Get all skill categories for a user" })
   @ApiResponse({
     status: HttpStatus.OK,
     description: "Returns all skill categories for the specified user.",
   })
-  findAllCategories(@Param("userId") userId: string) {
-    return this.skillService.findAllCategories(userId);
+  findAllCategories(@Request() req: any) {
+    return this.skillService.findAllCategories(req.user.id);
   }
 
   @Get("categories/:id")
@@ -84,9 +90,14 @@ export class SkillController {
   })
   updateCategory(
     @Param("id") id: string,
-    updateSkillCategoryDto: UpdateSkillCategoryDto
+    @Body() updateSkillCategoryDto: UpdateSkillCategoryDto,
+    @Request() req: any
   ) {
-    return this.skillService.updateCategory(id, updateSkillCategoryDto);
+    return this.skillService.updateCategory(
+      id,
+      updateSkillCategoryDto,
+      req.user
+    );
   }
 
   @Delete("categories/:id")
@@ -137,8 +148,8 @@ export class SkillController {
     status: HttpStatus.CREATED,
     description: "The skill has been successfully created.",
   })
-  create(createSkillDto: CreateSkillDto) {
-    return this.skillService.create(createSkillDto);
+  create(@Body() createSkillDto: CreateSkillDto, @Request() req: any) {
+    return this.skillService.create(createSkillDto, req.user);
   }
 
   @Get()
@@ -147,8 +158,8 @@ export class SkillController {
     status: HttpStatus.OK,
     description: "Returns all skills based on the query parameters.",
   })
-  findAll(query: SkillQueryDto) {
-    return this.skillService.findAll(query);
+  findAll(@Query() query: SkillQueryDto, @Request() req: any) {
+    return this.skillService.findAll(query, req.user);
   }
 
   @Get(":id")
@@ -208,8 +219,8 @@ export class SkillController {
     status: HttpStatus.NOT_FOUND,
     description: "Skill not found.",
   })
-  update(@Param("id") id: string, updateSkillDto: UpdateSkillDto) {
-    return this.skillService.update(id, updateSkillDto);
+  update(@Param("id") id: string, @Body() updateSkillDto: UpdateSkillDto, @Request() req: any) {
+    return this.skillService.update(id, updateSkillDto, req.user);
   }
 
   @Delete(":id")

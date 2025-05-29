@@ -1,32 +1,45 @@
-"use client"
-import Image from "next/image"
-import { Briefcase, ArrowRight, Github, Eye, ExternalLink } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
-import { useState } from "react"
-import { Badge } from "@/components/ui/badge"
-import { TextReveal, MagneticWrapper } from "@/components/enhanced-animations"
-import { useProjectTracking, useInteractionTracking } from "@/hooks/use-analytics"
+"use client";
+import { usePortfolio } from "@/app/portfolio";
+import { MagneticWrapper, TextReveal } from "@/components/enhanced-animations";
+import { Badge } from "@/components/ui/badge";
+import {
+  useInteractionTracking,
+  useProjectTracking,
+} from "@/hooks/use-analytics";
+import { AnimatePresence, motion } from "framer-motion";
+import { ArrowRight, Briefcase, ExternalLink, Eye, Github } from "lucide-react";
+import Image from "next/image";
+import { useState } from "react";
 
 interface ProjectCardProps {
-  title: string
-  description: string
-  image: string
-  tags: string[]
-  link: string
-  github?: string
-  featured?: boolean
-  index: number
+  title: string;
+  description: string;
+  image: string;
+  tags: string[];
+  link: string;
+  github?: string;
+  featured?: boolean;
+  index: number;
 }
 
-function GlassProjectCard({ title, description, image, tags, link, github, featured, index }: ProjectCardProps) {
-  const [isHovered, setIsHovered] = useState(false)
-  const { trackProjectView } = useProjectTracking()
-  const { trackInteraction } = useInteractionTracking()
+function GlassProjectCard({
+  title,
+  description,
+  image,
+  tags,
+  link,
+  github,
+  featured,
+  index,
+}: ProjectCardProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const { trackProjectView } = useProjectTracking();
+  const { trackInteraction } = useInteractionTracking();
 
   const handleProjectClick = () => {
-    trackProjectView(title.toLowerCase().replace(/\s+/g, "-"), title)
-    trackInteraction("click", "project-card", "card", { project: title })
-  }
+    trackProjectView(title.toLowerCase().replace(/\s+/g, "-"), title);
+    trackInteraction("click", "project-card", "card", { project: title });
+  };
 
   return (
     <motion.div
@@ -46,7 +59,11 @@ function GlassProjectCard({ title, description, image, tags, link, github, featu
         <motion.div
           initial={{ opacity: 0, scale: 0, rotate: -10 }}
           animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ delay: 0.5 + index * 0.1, type: "spring", stiffness: 200 }}
+          transition={{
+            delay: 0.5 + index * 0.1,
+            type: "spring",
+            stiffness: 200,
+          }}
           className="absolute -top-3 -right-3 z-20"
         >
           <div className="relative">
@@ -107,7 +124,8 @@ function GlassProjectCard({ title, description, image, tags, link, github, featu
           <motion.div
             className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
             style={{
-              background: "linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%)",
+              background:
+                "linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%)",
               transform: "translateX(-100%)",
             }}
             animate={{
@@ -129,7 +147,12 @@ function GlassProjectCard({ title, description, image, tags, link, github, featu
               whileHover={{ scale: 1.05 }}
               transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             >
-              <Image src={image || "/placeholder.svg"} alt={title} fill className="object-cover" />
+              <Image
+                src={image || "/placeholder.svg"}
+                alt={title}
+                fill
+                className="object-cover"
+              />
 
               {/* Refined image overlay */}
               <motion.div
@@ -320,75 +343,20 @@ function GlassProjectCard({ title, description, image, tags, link, github, featu
         />
       </motion.div>
     </motion.div>
-  )
+  );
 }
 
 export function EnhancedProjectsSection() {
-  const [filter, setFilter] = useState("all")
-  const { trackInteraction } = useInteractionTracking()
+  const [filter, setFilter] = useState("all");
+  const { trackInteraction } = useInteractionTracking();
 
-  const projects = [
-    {
-      title: "E-commerce Platform",
-      description:
-        "A full-featured online store with product management, cart functionality, and secure payment processing.",
-      image: "/modern-ecommerce-website.png",
-      tags: ["Next.js", "React", "Stripe", "Tailwind CSS"],
-      link: "https://example.com",
-      github: "https://github.com",
-      featured: true,
-      category: "web",
-    },
-    {
-      title: "Task Management App",
-      description:
-        "A productivity application for teams with real-time updates, task assignment, and progress tracking.",
-      image: "/task-management-app-interface.png",
-      tags: ["React", "Firebase", "Material UI"],
-      link: "https://example.com",
-      github: "https://github.com",
-      featured: true,
-      category: "web",
-    },
-    {
-      title: "Portfolio Website",
-      description: "A responsive portfolio website with animations and a custom CMS for easy content updates.",
-      image: "/portfolio-website-showcase.png",
-      tags: ["Next.js", "Tailwind CSS", "Framer Motion"],
-      link: "https://example.com",
-      featured: false,
-      category: "web",
-    },
-    {
-      title: "Health & Fitness App",
-      description:
-        "A mobile-first application for tracking workouts, nutrition, and health metrics with personalized recommendations.",
-      image: "/fitness-app.png",
-      tags: ["React Native", "Node.js", "MongoDB"],
-      link: "https://example.com",
-      category: "mobile",
-    },
-    {
-      title: "Real Estate Platform",
-      description:
-        "A property listing and management system with advanced search, virtual tours, and agent dashboards.",
-      image: "/real-estate-platform.png",
-      tags: ["Vue.js", "Express", "PostgreSQL"],
-      link: "https://example.com",
-      category: "web",
-    },
-    {
-      title: "AI Content Generator",
-      description: "An AI-powered tool that helps create marketing content, blog posts, and social media updates.",
-      image: "/ai-content-generator.png",
-      tags: ["Python", "TensorFlow", "React"],
-      link: "https://example.com",
-      category: "ai",
-    },
-  ]
+  const { portfolio } = usePortfolio();
 
-  const filteredProjects = filter === "all" ? projects : projects.filter((p) => p.category === filter)
-  const filters = ["all", "web", "mobile", "ai"]
+  const filteredProjects =
+    filter === "all"
+      ? portfolio.projects
+      : portfolio.projects.filter((p) => p.category?.name === filter);
+  const filters = ["all", "web", "mobile", "ai"];
 
   return (
     <section id="projects" className="py-20 md:py-32 relative overflow-hidden">
@@ -457,8 +425,8 @@ export function EnhancedProjectsSection() {
               className="mt-4 max-w-[700px] text-lg text-muted-foreground"
             >
               <TextReveal delay={0.5}>
-                Here's a selection of my recent work. Each project presented unique challenges and opportunities for
-                growth.
+                Here's a selection of my recent work. Each project presented
+                unique challenges and opportunities for growth.
               </TextReveal>
             </motion.p>
           </div>
@@ -478,11 +446,15 @@ export function EnhancedProjectsSection() {
                   <motion.button
                     key={filterOption}
                     onClick={() => {
-                      setFilter(filterOption)
-                      trackInteraction("click", "project-filter", "button", { filter: filterOption })
+                      setFilter(filterOption);
+                      trackInteraction("click", "project-filter", "button", {
+                        filter: filterOption,
+                      });
                     }}
                     className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                      filter === filterOption ? "text-white" : "text-muted-foreground hover:text-foreground"
+                      filter === filterOption
+                        ? "text-white"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -491,7 +463,11 @@ export function EnhancedProjectsSection() {
                       <motion.div
                         layoutId="activeFilter"
                         className="absolute inset-0 bg-gradient-to-r from-primary/90 to-blue-500/90 rounded-lg backdrop-blur-xl"
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 30,
+                        }}
                       />
                     )}
                     <span className="relative z-10 capitalize">
@@ -514,7 +490,14 @@ export function EnhancedProjectsSection() {
               className="grid gap-8 md:grid-cols-2 lg:grid-cols-3"
             >
               {filteredProjects.map((project, index) => (
-                <GlassProjectCard key={`${filter}-${project.title}`} {...project} index={index} />
+                <GlassProjectCard
+                  image={""}
+                  tags={[]}
+                  link={""}
+                  key={`${filter}-${project.title}`}
+                  {...project}
+                  index={index}
+                />
               ))}
             </motion.div>
           </AnimatePresence>
@@ -538,7 +521,9 @@ export function EnhancedProjectsSection() {
               >
                 <div className="absolute inset-0 bg-white/8 dark:bg-white/4 backdrop-blur-2xl rounded-xl border border-white/15" />
                 <div className="absolute inset-0 bg-gradient-to-r from-primary/15 to-blue-500/15 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <span className="relative z-10">View All Projects on GitHub</span>
+                <span className="relative z-10">
+                  View All Projects on GitHub
+                </span>
                 <motion.div
                   className="relative z-10"
                   animate={{ x: [0, 5, 0] }}
@@ -552,5 +537,5 @@ export function EnhancedProjectsSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

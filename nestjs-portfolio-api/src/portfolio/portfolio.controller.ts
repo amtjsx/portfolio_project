@@ -30,7 +30,6 @@ import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 
 @ApiTags("portfolio")
 @Controller("portfolio")
-@UseGuards(JwtAuthGuard)
 export class PortfolioController {
   constructor(
     private readonly portfolioService: PortfolioService,
@@ -38,6 +37,7 @@ export class PortfolioController {
   ) {}
 
   @Get("about")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Get personal information and bio" })
   @ApiResponse({
     status: 200,
@@ -64,6 +64,7 @@ export class PortfolioController {
   }
 
   @Get("skills")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Get technical and soft skills" })
   @ApiResponse({ status: 200, description: "Skills retrieved successfully" })
   getSkills() {
@@ -71,6 +72,7 @@ export class PortfolioController {
   }
 
   @Get("experience")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Get work experience history" })
   @ApiResponse({
     status: 200,
@@ -81,6 +83,7 @@ export class PortfolioController {
   }
 
   @Get("education")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Get education background" })
   @ApiResponse({
     status: 200,
@@ -91,6 +94,7 @@ export class PortfolioController {
   }
 
   @Get("portfolios")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Get all portfolios" })
   @ApiResponse({
     status: 200,
@@ -101,6 +105,7 @@ export class PortfolioController {
   }
 
   @Get("portfolios/published")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Get all published portfolios" })
   @ApiResponse({
     status: 200,
@@ -111,6 +116,7 @@ export class PortfolioController {
   }
 
   @Get("portfolios/featured")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Get featured portfolios" })
   @ApiResponse({
     status: 200,
@@ -130,6 +136,7 @@ export class PortfolioController {
   }
 
   @Get("user/:userId")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Get portfolios by user ID" })
   @ApiResponse({
     status: 200,
@@ -141,6 +148,7 @@ export class PortfolioController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Create a new portfolio" })
   @ApiBody({ type: CreatePortfolioDto })
   @ApiResponse({ status: 201, description: "Portfolio created successfully" })
@@ -153,6 +161,7 @@ export class PortfolioController {
   }
 
   @Patch(":id")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Update a portfolio" })
   @ApiParam({ name: "id", description: "Portfolio ID", example: 1 })
   @ApiBody({ type: UpdatePortfolioDto })
@@ -164,6 +173,7 @@ export class PortfolioController {
   }
 
   @Delete(":id")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Delete a portfolio" })
   @ApiParam({ name: "id", description: "Portfolio ID", example: 1 })
   @ApiResponse({ status: 200, description: "Portfolio deleted successfully" })
@@ -173,6 +183,7 @@ export class PortfolioController {
   }
 
   @Patch(":id/views")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Increment portfolio views" })
   @ApiParam({ name: "id", description: "Portfolio ID", example: 1 })
   @ApiResponse({
@@ -185,6 +196,7 @@ export class PortfolioController {
   }
 
   @Get(":id/analytics")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Get portfolio analytics" })
   @ApiParam({ name: "id", description: "Portfolio ID", example: 1 })
   @ApiResponse({
@@ -197,6 +209,7 @@ export class PortfolioController {
   }
 
   @Post(":id/resume")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Upload and attach resume to portfolio" })
   @ApiConsumes("multipart/form-data")
   @ApiBody({
@@ -244,6 +257,7 @@ export class PortfolioController {
   }
 
   @Post(":id/cover-image")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Upload and attach cover image to portfolio" })
   @ApiConsumes("multipart/form-data")
   @ApiBody({
@@ -292,6 +306,7 @@ export class PortfolioController {
   }
 
   @Get("portfolios/:id/files")
+  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: "Get all files attached to a portfolio" })
   @ApiResponse({
     status: 200,

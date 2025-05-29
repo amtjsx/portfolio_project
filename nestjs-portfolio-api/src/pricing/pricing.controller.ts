@@ -1,38 +1,38 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   UseGuards,
-  BadRequestException,
 } from "@nestjs/common";
 import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
   ApiBearerAuth,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
 } from "@nestjs/swagger";
-import { PricingService } from "./pricing.service";
-import { CreatePricingPlanDto } from "./dto/create-pricing-plan.dto";
-import { UpdatePricingPlanDto } from "./dto/update-pricing-plan.dto";
-import { CreateSubscriptionDto } from "./dto/create-subscription.dto";
-import { UpdateSubscriptionDto } from "./dto/update-subscription.dto";
-import { CreatePaymentDto } from "./dto/create-payment.dto";
-import { UpdatePaymentDto } from "./dto/update-payment.dto";
-import { CreateCouponDto } from "./dto/create-coupon.dto";
-import { UpdateCouponDto } from "./dto/update-coupon.dto";
-import { ApplyCouponDto } from "./dto/apply-coupon.dto";
+import { User } from "src/user/models/user.model";
+import { CurrentUser } from "../auth/decorators/current-user.decorator";
+import { Roles } from "../auth/decorators/roles.decorator";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../auth/guards/roles.guard";
-import { Roles } from "../auth/decorators/roles.decorator";
-import { CurrentUser } from "../auth/decorators/current-user.decorator";
-import { CreateFeatureDto } from "./dto/create-feature.dto";
-import { UpdateFeatureDto } from "./dto/update-feature.dto";
+import { ApplyCouponDto } from "./dto/apply-coupon.dto";
 import { AssignFeaturesDto } from "./dto/assign-features.dto";
+import { CreateCouponDto } from "./dto/create-coupon.dto";
+import { CreateFeatureDto } from "./dto/create-feature.dto";
+import { CreatePaymentDto } from "./dto/create-payment.dto";
+import { CreatePricingPlanDto } from "./dto/create-pricing-plan.dto";
+import { CreateSubscriptionDto } from "./dto/create-subscription.dto";
+import { UpdateCouponDto } from "./dto/update-coupon.dto";
+import { UpdateFeatureDto } from "./dto/update-feature.dto";
+import { UpdatePaymentDto } from "./dto/update-payment.dto";
+import { UpdatePricingPlanDto } from "./dto/update-pricing-plan.dto";
+import { UpdateSubscriptionDto } from "./dto/update-subscription.dto";
+import { PricingService } from "./pricing.service";
 
 @ApiTags("pricing")
 @Controller("pricing")
@@ -179,16 +179,9 @@ export class PricingController {
   })
   createSubscription(
     @Body() createSubscriptionDto: CreateSubscriptionDto,
-    @CurrentUser() user: any
+    @CurrentUser() user: User
   ) {
-    // If not admin, can only create subscription for self
-    if (user.role !== "admin" && createSubscriptionDto.userId !== user.id) {
-      throw new BadRequestException(
-        "You can only create subscriptions for yourself"
-      );
-    }
-
-    return this.pricingService.createSubscription(createSubscriptionDto);
+    return this.pricingService.createSubscription(createSubscriptionDto, user);
   }
 
   @Patch("subscriptions/:id")
@@ -240,8 +233,8 @@ export class PricingController {
   })
   @ApiResponse({ status: 404, description: "Subscription not found" })
   @ApiResponse({ status: 400, description: "Cannot renew subscription" })
-  renewSubscription(@Param("id") id: string) {
-    return this.pricingService.renewSubscription(id);
+  renewSubscription(@Param("id") id: string, @CurrentUser() user: any) {
+    return this.pricingService.renewSubscription(id, user);
   }
 
   @Delete("subscriptions/:id")
@@ -305,8 +298,11 @@ export class PricingController {
   @ApiResponse({ status: 201, description: "Payment created successfully" })
   @ApiResponse({ status: 400, description: "Invalid input data" })
   @ApiResponse({ status: 404, description: "User or subscription not found" })
-  createPayment(@Body() createPaymentDto: CreatePaymentDto) {
-    return this.pricingService.createPayment(createPaymentDto);
+  createPayment(
+    @Body() createPaymentDto: CreatePaymentDto,
+    @CurrentUser() user: User
+  ) {
+    return this.pricingService.createPayment(createPaymentDto, user);
   }
 
   @Patch("payments/:id")

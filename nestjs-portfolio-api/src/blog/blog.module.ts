@@ -8,6 +8,7 @@ import { User } from "src/user/models/user.model";
 import { Portfolio } from "src/portfolio/models/portfolio.model";
 import { BlogService } from "./blog.service";
 import { BlogComment } from "./models/blog-comment.model";
+import { BlogController } from "./blog.controller";
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { BlogComment } from "./models/blog-comment.model";
       BlogComment,
     ]),
   ],
+  controllers: [BlogController],
   providers: [BlogService],
   exports: [BlogService],
 })

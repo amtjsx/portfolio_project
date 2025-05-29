@@ -7,6 +7,16 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
       },
+      portfolio_id: {
+        type: Sequelize.UUID,
+        allowNull: true,
+        references: {
+          model: "portfolios",
+          key: "id",
+        },
+        onUpdate: "CASCADE",
+        onDelete: "SET NULL",
+      },
       user_id: {
         type: Sequelize.UUID,
         allowNull: true,
@@ -63,6 +73,7 @@ module.exports = {
     })
 
     // Add indexes
+    await queryInterface.addIndex("contacts", ["portfolio_id"])
     await queryInterface.addIndex("contacts", ["user_id"])
     await queryInterface.addIndex("contacts", ["status"])
     await queryInterface.addIndex("contacts", ["email"])

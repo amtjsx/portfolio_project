@@ -3,9 +3,11 @@ import {
   Injectable,
   NotFoundException,
 } from "@nestjs/common";
+import { InjectModel } from "@nestjs/sequelize";
 import { Op } from "sequelize";
 import { Portfolio } from "../portfolio/models/portfolio.model";
 import { User } from "../user/models/user.model";
+import { mockCategories } from "./data/mock-skills";
 import { CreateSkillCategoryDto } from "./dto/create-skill-category.dto";
 import { CreateSkillDto } from "./dto/create-skill.dto";
 import { SkillQueryDto } from "./dto/skill-query.dto";
@@ -13,7 +15,6 @@ import { UpdateSkillCategoryDto } from "./dto/update-skill-category.dto";
 import { UpdateSkillDto } from "./dto/update-skill.dto";
 import { SkillCategory } from "./models/skill-category.model";
 import { Skill, type ProficiencyLevel } from "./models/skill.model";
-import { InjectModel } from "@nestjs/sequelize";
 
 @Injectable()
 export class SkillService {
@@ -30,43 +31,30 @@ export class SkillService {
 
   // Skill Category Methods
   async createCategory(
-    createSkillCategoryDto: CreateSkillCategoryDto
+    createSkillCategoryDto: CreateSkillCategoryDto,
+    user: User
   ): Promise<SkillCategory> {
-    // Check if user exists
-    const user = await this.userModel.findByPk(createSkillCategoryDto.userId);
-    if (!user) {
-      throw new NotFoundException(
-        `User with ID ${createSkillCategoryDto.userId} not found`
-      );
-    }
-
     // Get the highest display order for this user's categories
     const highestOrder =
       (await this.skillCategoryModel.max("displayOrder", {
-        where: { userId: createSkillCategoryDto.userId },
+        where: { userId: user.id },
       })) || 0;
 
     // Create the category with the next display order
     return this.skillCategoryModel.create({
       ...createSkillCategoryDto,
-      displayOrder:
-        createSkillCategoryDto.displayOrder ?? (highestOrder as number) + 1,
+      userId: user.id,
+      displayOrder: (highestOrder as number) + 1,
     });
   }
 
-  async findAllCategories(userId: string): Promise<SkillCategory[]> {
-    return this.skillCategoryModel.findAll({
-      where: { userId },
-      order: [["displayOrder", "ASC"]],
-      include: [
-        {
-          model: Skill,
-          as: "skills",
-          required: false,
-          order: [["displayOrder", "ASC"]],
-        },
-      ],
-    });
+  async findAllCategories(userId: string) {
+    const { rows: categories, count } =
+      await this.skillCategoryModel.findAndCountAll({
+        where: { userId },
+        order: [["displayOrder", "ASC"]],
+      });
+    return { data: categories, total: count };
   }
 
   async findCategoryById(id: string): Promise<SkillCategory> {
@@ -89,7 +77,8 @@ export class SkillService {
 
   async updateCategory(
     id: string,
-    updateSkillCategoryDto: UpdateSkillCategoryDto
+    updateSkillCategoryDto: UpdateSkillCategoryDto,
+    user: User
   ): Promise<SkillCategory> {
     const category = await this.findCategoryById(id);
     await category.update(updateSkillCategoryDto);
@@ -112,10 +101,7 @@ export class SkillService {
     await category.destroy();
   }
 
-  async reorderCategories(
-    userId: string,
-    categoryIds: string[]
-  ): Promise<SkillCategory[]> {
+  async reorderCategories(userId: string, categoryIds: string[]) {
     // Verify all categories exist and belong to the user
     const categories = await this.skillCategoryModel.findAll({
       where: {
@@ -140,45 +126,13 @@ export class SkillService {
       );
     }
 
-    return this.findAllCategories(userId);
+    return mockCategories;
   }
 
   // Skill Methods
-  async create(createSkillDto: CreateSkillDto): Promise<Skill> {
-    // Check if user exists
-    const user = await this.userModel.findByPk(createSkillDto.userId);
-    if (!user) {
-      throw new NotFoundException(
-        `User with ID ${createSkillDto.userId} not found`
-      );
-    }
-
-    // Check if portfolio exists if portfolioId is provided
-    if (createSkillDto.portfolioId) {
-      const portfolio = await this.portfolioModel.findByPk(
-        createSkillDto.portfolioId
-      );
-      if (!portfolio) {
-        throw new NotFoundException(
-          `Portfolio with ID ${createSkillDto.portfolioId} not found`
-        );
-      }
-    }
-
-    // Check if category exists if categoryId is provided
-    if (createSkillDto.categoryId) {
-      const category = await this.skillCategoryModel.findByPk(
-        createSkillDto.categoryId
-      );
-      if (!category) {
-        throw new NotFoundException(
-          `Skill category with ID ${createSkillDto.categoryId} not found`
-        );
-      }
-    }
-
+  async create(createSkillDto: CreateSkillDto, user: User): Promise<Skill> {
     // Get the highest display order for this user's skills in the category (if provided)
-    const whereClause: any = { userId: createSkillDto.userId };
+    const whereClause: any = { userId: user.id };
     if (createSkillDto.categoryId) {
       whereClause.categoryId = createSkillDto.categoryId;
     }
@@ -191,16 +145,14 @@ export class SkillService {
     // Create the skill with the next display order
     return this.skillModel.create({
       ...createSkillDto,
+      userId: user.id,
+      portfolioId: user.id,
       displayOrder: createSkillDto.displayOrder ?? (highestOrder as number) + 1,
     });
   }
 
-  async findAll(
-    query: SkillQueryDto
-  ): Promise<{ skills: Skill[]; total: number; page: number; limit: number }> {
+  async findAll(query: SkillQueryDto, user: User) {
     const {
-      userId,
-      portfolioId,
       categoryId,
       proficiencyLevel,
       minYearsOfExperience,
@@ -214,9 +166,7 @@ export class SkillService {
     } = query;
 
     // Build where clause
-    const whereClause: any = {};
-    if (userId) whereClause.userId = userId;
-    if (portfolioId) whereClause.portfolioId = portfolioId;
+    const whereClause: any = { userId: user.id };
     if (categoryId) whereClause.categoryId = categoryId;
     if (proficiencyLevel) whereClause.proficiencyLevel = proficiencyLevel;
     if (minYearsOfExperience !== undefined) {
@@ -242,11 +192,8 @@ export class SkillService {
     // Calculate offset
     const offset = (page - 1) * limit;
 
-    // Get total count
-    const total = await this.skillModel.count({ where: whereClause });
-
     // Get skills
-    const skills = await this.skillModel.findAll({
+    const { count, rows: skills } = await this.skillModel.findAndCountAll({
       where: whereClause,
       include,
       order: [[sortBy, sortDirection]],
@@ -255,10 +202,8 @@ export class SkillService {
     });
 
     return {
-      skills,
-      total,
-      page,
-      limit,
+      data: skills,
+      total: count,
     };
   }
 
@@ -318,7 +263,11 @@ export class SkillService {
     });
   }
 
-  async update(id: string, updateSkillDto: UpdateSkillDto): Promise<Skill> {
+  async update(
+    id: string,
+    updateSkillDto: UpdateSkillDto,
+    user: User
+  ): Promise<Skill> {
     const skill = await this.findOne(id);
 
     // Check if portfolio exists if portfolioId is provided

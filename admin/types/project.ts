@@ -8,4 +8,19 @@ export interface Project {
   githubUrl: string;
   technologies: string[];
   portfolioId: string;
+  startDate: string;
+  endDate: string;
+  status: ProjectStatus;
+  category: string;
+}
+
+export enum ProjectStatus {
+  Completed = "completed",
+  InProgress = "in-progress",
+  Planned = "planned",
+}
+
+export interface ProjectCategory {
+  id: string;
+  name: string;
 }

@@ -18,11 +18,11 @@ module.exports = {
         onDelete: "CASCADE",
       },
       original_name: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING,
         allowNull: false,
       },
       filename: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING,
         allowNull: false,
         unique: true,
       },
@@ -31,7 +31,7 @@ module.exports = {
         allowNull: false,
       },
       mimetype: {
-        type: Sequelize.STRING(100),
+        type: Sequelize.STRING,
         allowNull: false,
       },
       size: {
@@ -60,7 +60,7 @@ module.exports = {
         allowNull: true,
       },
       title: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING,
         allowNull: true,
       },
       alt_text: {
@@ -86,7 +86,7 @@ module.exports = {
         defaultValue: 0.5,
       },
       dominant_color: {
-        type: Sequelize.STRING(7),
+        type: Sequelize.STRING,
         allowNull: true,
       },
       tags: {

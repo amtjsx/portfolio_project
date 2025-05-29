@@ -8,6 +8,7 @@ import { InjectModel } from "@nestjs/sequelize";
 import { existsSync, promises as fs, mkdirSync } from "fs";
 import { extname, join } from "path";
 import * as sharp from "sharp";
+import { User } from "src/user/models/user.model";
 import { Op } from "../common/models/sequelize-imports";
 import type { CreateImageDto } from "./dto/create-image.dto";
 import type { GenerateVariantDto } from "./dto/generate-variant.dto";
@@ -46,7 +47,8 @@ export class ImageService {
 
   async create(
     createImageDto: CreateImageDto,
-    file: Express.Multer.File
+    file: Express.Multer.File,
+    user: User
   ): Promise<Image> {
     if (!file) {
       throw new BadRequestException("No file uploaded");
@@ -72,7 +74,7 @@ export class ImageService {
 
     // Create image record
     const image = await this.imageModel.create({
-      userId: createImageDto.userId,
+      userId: user.id,
       originalName: file.originalname,
       filename,
       path,
@@ -92,17 +94,24 @@ export class ImageService {
       tags: createImageDto.tags || [],
       metadata: await this.extractMetadata(path),
       url: `/api/images/${filename}`,
-      isPublic:
-        createImageDto.isPublic !== undefined ? createImageDto.isPublic : true,
+      isPublic: true,
     });
 
     // Generate variants if requested
     if (createImageDto.generateVariants !== false) {
-      await this.generateDefaultVariants(image.id);
+      await this.generateDefaultVariants(image);
     }
 
+    const imageWithVariants = await this.imageModel.findByPk(image.id, {
+      include: [
+        {
+          model: ImageVariant,
+          as: "variants",
+        },
+      ],
+    });
     // Reload image with variants
-    return this.findOne(image.id);
+    return imageWithVariants;
   }
 
   async findAll(
@@ -187,15 +196,11 @@ export class ImageService {
   }
 
   async findByFilename(filename: string): Promise<Image> {
+    console.log("fieldname", filename);
     const image = await this.imageModel.findOne({
       where: { filename },
-      include: [
-        {
-          model: ImageVariant,
-          as: "variants",
-        },
-      ],
     });
+    console.log("image", image);
 
     if (!image) {
       throw new NotFoundException(`Image with filename ${filename} not found`);
@@ -237,7 +242,7 @@ export class ImageService {
     }
 
     // Soft delete image (will cascade to variants)
-    await image.softDelete();
+    await image.destroy();
 
     return { message: "Image deleted successfully" };
   }
@@ -293,7 +298,7 @@ export class ImageService {
     filename: string
   ): Promise<{ path: string; mimetype: string; size: number }> {
     try {
-      const image = await this.findByFilename(filename);
+      const image = await this.imageModel.findByPk(filename);
       const stats = await fs.stat(image.path);
 
       return {
@@ -504,9 +509,7 @@ export class ImageService {
     }
   }
 
-  private async generateDefaultVariants(imageId: string): Promise<void> {
-    const image = await this.findOne(imageId);
-
+  private async generateDefaultVariants(image: Image): Promise<void> {
     // Define default variants to generate
     const defaultVariants = [
       { size: ImageSize.THUMBNAIL, format: ImageFormat.WEBP, quality: 80 },
@@ -572,8 +575,7 @@ export class ImageService {
       // Get file size
       const stats = await fs.stat(path);
 
-      // Create variant record
-      const variant = await this.imageVariantModel.create({
+      const data = {
         imageId: image.id,
         format,
         filename,
@@ -584,7 +586,10 @@ export class ImageService {
         height: dimensions.height,
         url: `/api/images/${image.id}/${size}/${format}`,
         quality,
-      });
+      };
+      console.log("image variant data", data);
+      // Create variant record
+      const variant = await this.imageVariantModel.create(data);
 
       return variant;
     } catch (error) {

@@ -1,22 +1,15 @@
 import { ApiProperty } from "@nestjs/swagger";
 import {
-  IsString,
   IsBoolean,
-  IsOptional,
-  IsISO8601,
-  IsUUID,
   IsIn,
+  IsISO8601,
   IsObject,
+  IsOptional,
+  IsString,
+  IsUUID,
 } from "class-validator";
 
 export class CreateSubscriptionDto {
-  @ApiProperty({
-    description: "User ID",
-    example: "123e4567-e89b-12d3-a456-426614174000",
-  })
-  @IsUUID()
-  userId: string;
-
   @ApiProperty({
     description: "Pricing Plan ID",
     example: "123e4567-e89b-12d3-a456-426614174000",

@@ -27,6 +27,27 @@ export class CreatePortfolioDto {
   subtitle: string;
 
   @ApiProperty({
+    description: "Portfolio email",
+    example: "john@example.com",
+  })
+  @IsString()
+  email: string;
+
+  @ApiProperty({
+    description: "Portfolio phone number",
+    example: "123-456-7890",
+  })
+  @IsString()
+  phoneNumber: string;
+
+  @ApiProperty({
+    description: "Portfolio location",
+    example: "New York, USA",
+  })
+  @IsString()
+  location: string;
+
+  @ApiProperty({
     description: "Professional summary",
     example: "Experienced developer with 5+ years in web development...",
   })

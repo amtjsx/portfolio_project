@@ -6,6 +6,7 @@ import { CreateSocialDto } from "./dto/create-social.dto";
 import { UpdateSocialDto } from "./dto/update-social.dto";
 import { Social } from "./models/social.model";
 import { InjectModel } from "@nestjs/sequelize";
+import { mockSocialLinks } from "./data/mock-social-links";
 
 @Injectable()
 export class SocialService {
@@ -34,8 +35,8 @@ export class SocialService {
     });
 
     return {
-      data: socialLinks,
-      total: socialLinks.length,
+      data: mockSocialLinks,
+      total: mockSocialLinks.length,
     };
   }
 

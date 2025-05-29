@@ -21,14 +21,14 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { useData } from "@/hooks/use-infinite-data";
 import type { BlogPost } from "@/lib/blog";
-import { blogPosts, categories } from "@/lib/blog";
+import { categories } from "@/lib/blog";
 import { motion } from "framer-motion";
 import { Edit, Eye, Plus, Search, Trash2 } from "lucide-react";
 import { useState } from "react";
 
 export default function BlogManager() {
-  const [posts, setPosts] = useState(blogPosts);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -43,6 +43,8 @@ export default function BlogManager() {
     featured: false,
   });
 
+  const { data: posts } = useData<BlogPost>({ keys: "blog" });
+
   const filteredPosts = posts.filter((post) => {
     const matchesSearch = post.title
       .toLowerCase()
@@ -55,26 +57,17 @@ export default function BlogManager() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (editingPost) {
-      setPosts(
-        posts.map((post) =>
-          post.slug === editingPost.slug ? { ...post, ...formData } : post
-        )
-      );
-    } else {
-      const newPost: BlogPost = {
-        ...formData,
-        slug: formData.title.toLowerCase().replace(/\s+/g, "-"),
-        author: "Alex Morgan",
-        date: new Date().toLocaleDateString("en-US", {
-          month: "long",
-          day: "numeric",
-          year: "numeric",
-        }),
-        readTime: "5 min read",
-      };
-      setPosts([newPost, ...posts]);
-    }
+    const newPost: BlogPost = {
+      ...formData,
+      slug: formData.title.toLowerCase().replace(/\s+/g, "-"),
+      author: "Alex Morgan",
+      date: new Date().toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      }),
+      readTime: "5 min read",
+    };
 
     setIsAddDialogOpen(false);
     setEditingPost(null);
@@ -101,9 +94,7 @@ export default function BlogManager() {
     setIsAddDialogOpen(true);
   };
 
-  const handleDelete = (slug: string) => {
-    setPosts(posts.filter((post) => post.slug !== slug));
-  };
+  const handleDelete = (slug: string) => {};
 
   const togglePublished = (slug: string) => {
     // In a real app, this would toggle the published status

@@ -1,12 +1,12 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
-import { Op } from "sequelize";
-import { Experience } from "./models/experience.model";
-import { CreateExperienceDto } from "./dto/create-experience.dto";
-import { UpdateExperienceDto } from "./dto/update-experience.dto";
-import { ExperienceQueryDto } from "./dto/experience-query.dto";
-import { User } from "../user/models/user.model";
-import { Portfolio } from "../portfolio/models/portfolio.model";
 import { InjectModel } from "@nestjs/sequelize";
+import { Op } from "sequelize";
+import { Portfolio } from "../portfolio/models/portfolio.model";
+import { User } from "../user/models/user.model";
+import { CreateExperienceDto } from "./dto/create-experience.dto";
+import { ExperienceQueryDto } from "./dto/experience-query.dto";
+import { UpdateExperienceDto } from "./dto/update-experience.dto";
+import { Experience } from "./models/experience.model";
 
 @Injectable()
 export class ExperienceService {
@@ -15,37 +15,26 @@ export class ExperienceService {
     private experienceModel: typeof Experience
   ) {}
 
-  async create(createExperienceDto: CreateExperienceDto): Promise<Experience> {
+  async create(
+    createExperienceDto: CreateExperienceDto,
+    user: User
+  ): Promise<Experience> {
     // If this is set as current job, ensure endDate is null
     if (createExperienceDto.isCurrent) {
       createExperienceDto.endDate = null;
     }
 
-    // If portfolioId is provided, check if it exists
-    if (createExperienceDto.portfolioId) {
-      const portfolio = await Portfolio.findByPk(
-        createExperienceDto.portfolioId
-      );
-      if (!portfolio) {
-        throw new NotFoundException(
-          `Portfolio with ID ${createExperienceDto.portfolioId} not found`
-        );
-      }
-    }
-
     // Create the experience
-    const experience = await this.experienceModel.create(createExperienceDto);
+    const experience = await this.experienceModel.create({
+      ...createExperienceDto,
+      userId: user.id,
+      portfolioId: user.id,
+    });
     return experience;
   }
 
-  async findAll(
-    query: ExperienceQueryDto = {}
-  ): Promise<{ data: Experience[]; total: number }> {
-    const whereClause: any = {};
-
-    if (query.userId) {
-      whereClause.userId = query.userId;
-    }
+  async findAll(query: ExperienceQueryDto = {}, user: User) {
+    const whereClause: any = { userId: user.id };
 
     if (query.portfolioId) {
       whereClause.portfolioId = query.portfolioId;
@@ -74,18 +63,8 @@ export class ExperienceService {
       whereClause.technologies = { [Op.contains]: [query.technology] };
     }
 
-    const experiences = await this.experienceModel.findAll({
+    const experiences = await this.experienceModel.findAndCountAll({
       where: whereClause,
-      include: [
-        {
-          model: User,
-          attributes: ["id", "firstName", "lastName"],
-        },
-        {
-          model: Portfolio,
-          attributes: ["id", "title"],
-        },
-      ],
       order: [
         ["isCurrent", "DESC"],
         ["startDate", "DESC"],
@@ -94,24 +73,13 @@ export class ExperienceService {
     });
 
     return {
-      data: experiences,
-      total: experiences.length,
+      data: [],
+      total: 0
     };
   }
 
   async findOne(id: string): Promise<Experience> {
-    const experience = await this.experienceModel.findByPk(id, {
-      include: [
-        {
-          model: User,
-          attributes: ["id", "firstName", "lastName"],
-        },
-        {
-          model: Portfolio,
-          attributes: ["id", "title"],
-        },
-      ],
-    });
+    const experience = await this.experienceModel.findByPk(id, {});
 
     if (!experience) {
       throw new NotFoundException(`Experience with ID ${id} not found`);

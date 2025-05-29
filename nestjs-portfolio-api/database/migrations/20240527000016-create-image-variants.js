@@ -26,7 +26,7 @@ module.exports = {
         allowNull: false,
       },
       filename: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING,
         allowNull: false,
         unique: true,
       },
@@ -35,7 +35,7 @@ module.exports = {
         allowNull: false,
       },
       mimetype: {
-        type: Sequelize.STRING(100),
+        type: Sequelize.STRING,
         allowNull: false,
       },
       size: {

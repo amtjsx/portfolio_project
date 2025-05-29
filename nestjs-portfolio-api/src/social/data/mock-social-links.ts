@@ -1,0 +1,58 @@
+export const mockSocialLinks = [
+  {
+    id: "github",
+    platform: "GitHub",
+    url: "github.com/alexmorgan",
+    isActive: true,
+    position: "all",
+  },
+  {
+    id: "linkedin",
+    platform: "LinkedIn",
+    url: "linkedin.com/in/alexmorgan",
+    isActive: true,
+    position: "all",
+  },
+  {
+    id: "facebook",
+    platform: "Facebook",
+    url: "facebook.com/alexmorgan",
+    isActive: true,
+    position: "all",
+  },
+  {
+    id: "twitter",
+    platform: "X (Twitter)",
+    url: "twitter.com/alexmorgan",
+    isActive: true,
+    position: "all",
+  },
+  {
+    id: "email",
+    platform: "Email",
+    url: "alex.morgan@example.com",
+    isActive: true,
+    position: "all",
+  },
+  {
+    id: "instagram",
+    platform: "Instagram",
+    url: "instagram.com/alexmorgan",
+    isActive: false,
+    position: "all",
+  },
+  {
+    id: "youtube",
+    platform: "YouTube",
+    url: "",
+    isActive: false,
+    position: "all",
+  },
+  {
+    id: "website",
+    platform: "Personal Website",
+    url: "",
+    isActive: false,
+    position: "all",
+  },
+];

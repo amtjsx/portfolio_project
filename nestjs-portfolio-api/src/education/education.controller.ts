@@ -1,34 +1,35 @@
 import {
+  Body,
   Controller,
-  Get,
-  Post,
-  Patch,
-  Param,
   Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Patch,
+  Post,
   Query,
   UseGuards,
-  HttpStatus,
-  HttpCode,
 } from "@nestjs/common";
 import {
-  ApiTags,
-  ApiOperation,
-  ApiResponse,
-  ApiParam,
   ApiBearerAuth,
   ApiBody,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
 } from "@nestjs/swagger";
+import { CurrentUser } from "../auth/decorators/current-user.decorator";
+import { Roles } from "../auth/decorators/roles.decorator";
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { RolesGuard } from "../auth/guards/roles.guard";
-import { Roles } from "../auth/decorators/roles.decorator";
-import { CurrentUser } from "../auth/decorators/current-user.decorator";
+import { ApiResponseEntity } from "../common/entities/api-response.entity";
 import { User } from "../user/models/user.model";
-import { EducationService } from "./education.service";
 import { CreateEducationDto } from "./dto/create-education.dto";
-import { UpdateEducationDto } from "./dto/update-education.dto";
 import { EducationQueryDto } from "./dto/education-query.dto";
 import { ReorderEducationDto } from "./dto/reorder-education.dto";
-import { ApiResponseEntity } from "../common/entities/api-response.entity";
+import { UpdateEducationDto } from "./dto/update-education.dto";
+import { EducationService } from "./education.service";
 
 @ApiTags("education")
 @Controller("education")
@@ -54,20 +55,15 @@ export class EducationController {
     description: "Unauthorized.",
   })
   async create(
-    createEducationDto: CreateEducationDto,
+    @Body() createEducationDto: CreateEducationDto,
     @CurrentUser() user: User
   ) {
-    // Ensure the user can only create education for themselves
-    if (user.role !== "admin" && createEducationDto.userId !== user.id) {
-      createEducationDto.userId = user.id;
-    }
-
-    const education = await this.educationService.create(createEducationDto);
-    return {
-      statusCode: HttpStatus.CREATED,
-      message: "Education entry created successfully",
-      data: education,
-    };
+    console.log("user", user);
+    const education = await this.educationService.create(
+      createEducationDto,
+      user
+    );
+    return education;
   }
 
   @Get()
@@ -79,16 +75,7 @@ export class EducationController {
   })
   async findAll(@Query() query: EducationQueryDto) {
     const result = await this.educationService.findAll(query);
-    return {
-      statusCode: HttpStatus.OK,
-      message: "Education entries retrieved successfully",
-      data: result.data,
-      meta: {
-        total: result.count,
-        totalPages: result.totalPages,
-        currentPage: result.currentPage,
-      },
-    };
+    return result;
   }
 
   @Get(":id")

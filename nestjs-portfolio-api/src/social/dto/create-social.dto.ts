@@ -1,24 +1,16 @@
 import { ApiProperty } from "@nestjs/swagger";
 import {
-  IsString,
-  IsNumber,
   IsBoolean,
-  IsOptional,
   IsIn,
-  IsUrl,
   IsInt,
-  Min,
+  IsOptional,
+  IsString,
+  IsUrl,
   Max,
+  Min,
 } from "class-validator";
 
 export class CreateSocialDto {
-  @ApiProperty({
-    description: "User ID who owns this social link",
-    example: 1,
-  })
-  @IsString()
-  userId: string;
-
   @ApiProperty({
     description: "Portfolio ID this social link belongs to",
     required: false,

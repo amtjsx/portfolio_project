@@ -10,6 +10,7 @@ import { Sequelize } from "sequelize-typescript";
 import { slugify } from "../common/utils/string-utils";
 import { Portfolio } from "../portfolio/models/portfolio.model";
 import { User } from "../user/models/user.model";
+import { blogPosts } from "./data/mock-blogs";
 import { BlogQueryDto } from "./dto/blog-query.dto";
 import { CreateBlogCategoryDto } from "./dto/create-blog-category.dto";
 import { CreateBlogCommentDto } from "./dto/create-blog-comment.dto";
@@ -140,9 +141,7 @@ export class BlogService {
     }
   }
 
-  async getAllBlogs(
-    query: BlogQueryDto
-  ): Promise<{ blogs: Blog[]; total: number; page: number; limit: number }> {
+  async getAllBlogs(query: BlogQueryDto) {
     const {
       page = 1,
       limit = 10,
@@ -198,24 +197,24 @@ export class BlogService {
       scope = "onlyDeleted";
     }
 
-    const { rows, count } = await this.blogModel.scope(scope).findAndCountAll({
-      where: whereClause,
-      limit,
-      offset,
-      order: [[sortBy, sortOrder]],
-      distinct: true,
-    });
+    // const { rows, count } = await this.blogModel.scope(scope).findAndCountAll({
+    //   where: whereClause,
+    //   limit,
+    //   offset,
+    //   order: [[sortBy, sortOrder]],
+    //   distinct: true,
+    // });
 
     // Filter by tags if provided
-    let blogs = rows;
-    if (tags && tags.length > 0) {
-      const blogIds = await this.getBlogIdsByTags(tags);
-      blogs = blogs.filter((blog) => blogIds.includes(blog.id));
-    }
+    // let blogs = rows;
+    // if (tags && tags.length > 0) {
+    //   const blogIds = await this.getBlogIdsByTags(tags);
+    //   blogs = blogs.filter((blog) => blogIds.includes(blog.id));
+    // }
 
     return {
-      blogs,
-      total: count,
+      data: blogPosts,
+      total: blogPosts.length,
       page,
       limit,
     };

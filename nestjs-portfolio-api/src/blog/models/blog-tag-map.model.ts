@@ -4,7 +4,7 @@ import { BlogTag } from "./blog-tag.model"
 import { v4 as uuidv4 } from "uuid"
 
 @Table({
-  tableName: "blog_tag_map",
+  tableName: "blog_tag_maps",
   timestamps: true,
   indexes: [
     {

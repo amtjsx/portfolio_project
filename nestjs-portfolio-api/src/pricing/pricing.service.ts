@@ -253,15 +253,10 @@ export class PricingService {
     };
   }
 
-  async createSubscription(createSubscriptionDto: CreateSubscriptionDto) {
-    // Check if user exists
-    const user = await this.userModel.findByPk(createSubscriptionDto.userId);
-    if (!user) {
-      throw new NotFoundException(
-        `User with ID ${createSubscriptionDto.userId} not found`
-      );
-    }
-
+  async createSubscription(
+    createSubscriptionDto: CreateSubscriptionDto,
+    user: User
+  ) {
     // Check if plan exists
     const plan = await this.pricingPlanModel.findByPk(
       createSubscriptionDto.planId
@@ -282,7 +277,7 @@ export class PricingService {
     // Check if user already has an active subscription for this plan
     const existingSubscription = await this.subscriptionModel.findOne({
       where: {
-        userId: createSubscriptionDto.userId,
+        userId: user.id,
         planId: createSubscriptionDto.planId,
         status: "active",
       },
@@ -325,7 +320,7 @@ export class PricingService {
     // Create subscription
     const subscription = await this.subscriptionModel.create({
       id: uuidv4(),
-      userId: createSubscriptionDto.userId,
+      userId: user.id,
       planId: createSubscriptionDto.planId,
       status:
         createSubscriptionDto.status || (trialEndDate ? "trialing" : "active"),
@@ -364,7 +359,7 @@ export class PricingService {
     return subscription;
   }
 
-  async renewSubscription(id: string) {
+  async renewSubscription(id: string, user: User) {
     const subscription = await this.findSubscriptionById(id);
 
     if (
@@ -404,19 +399,21 @@ export class PricingService {
     });
 
     // Create payment record
-    await this.createPayment({
-      userId: subscription.userId,
-      subscriptionId: subscription.id,
-      amount: plan.price,
-      currency: plan.currency,
-      status: "succeeded",
-      paymentMethod: "card", // Default
-      description: `Subscription renewal for ${plan.name} plan`,
-      metadata: {
-        renewalDate: new Date().toISOString(),
-        billingPeriod: `${newPeriodStart.toISOString()} to ${newPeriodEnd.toISOString()}`,
+    await this.createPayment(
+      {
+        subscriptionId: subscription.id,
+        amount: plan.price,
+        currency: plan.currency,
+        status: "succeeded",
+        paymentMethod: "card", // Default
+        description: `Subscription renewal for ${plan.name} plan`,
+        metadata: {
+          renewalDate: new Date().toISOString(),
+          billingPeriod: `${newPeriodStart.toISOString()} to ${newPeriodEnd.toISOString()}`,
+        },
       },
-    });
+      user
+    );
 
     return subscription;
   }
@@ -511,15 +508,7 @@ export class PricingService {
     return payment;
   }
 
-  async createPayment(createPaymentDto: CreatePaymentDto) {
-    // Check if user exists
-    const user = await this.userModel.findByPk(createPaymentDto.userId);
-    if (!user) {
-      throw new NotFoundException(
-        `User with ID ${createPaymentDto.userId} not found`
-      );
-    }
-
+  async createPayment(createPaymentDto: CreatePaymentDto, user: User) {
     // Check if subscription exists if provided
     if (createPaymentDto.subscriptionId) {
       const subscription = await this.subscriptionModel.findByPk(
@@ -536,6 +525,7 @@ export class PricingService {
     const payment = await this.paymentModel.create({
       id: uuidv4(),
       ...createPaymentDto,
+      userId: user.id,
     });
 
     return payment;

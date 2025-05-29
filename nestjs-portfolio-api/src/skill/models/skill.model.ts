@@ -1,20 +1,20 @@
 import {
-  Table,
-  Column,
-  DataType,
-  ForeignKey,
-  BelongsTo,
   BeforeCreate,
   BeforeUpdate,
+  BelongsTo,
+  Column,
+  DataType,
   DefaultScope,
+  ForeignKey,
   Scopes,
-} from "sequelize-typescript"
-import { User } from "../../user/models/user.model"
-import { Portfolio } from "../../portfolio/models/portfolio.model"
-import { SkillCategory } from "./skill-category.model"
-import { Project } from "../../projects/models/project.model"
-import { Experience } from "../../experience/models/experience.model"
-import { BaseModel } from "../../common/models/base.model"
+  Table,
+} from "sequelize-typescript";
+import { BaseModel } from "../../common/models/base.model";
+import { Experience } from "../../experience/models/experience.model";
+import { Portfolio } from "../../portfolio/models/portfolio.model";
+import { Project } from "../../projects/models/project.model";
+import { User } from "../../user/models/user.model";
+import { SkillCategory } from "./skill-category.model";
 
 export enum ProficiencyLevel {
   BEGINNER = "beginner",
@@ -69,104 +69,112 @@ export enum ProficiencyLevel {
 })
 export class Skill extends BaseModel<Skill> {
   @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    primaryKey: true,
+    defaultValue: DataType.UUIDV4,
+  })
+  id: string;
+
+  @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  name: string
+  name: string;
 
   @Column({
     type: DataType.TEXT,
     allowNull: true,
   })
-  description: string
+  description: string;
 
   @Column({
     type: DataType.ENUM(...Object.values(ProficiencyLevel)),
     allowNull: false,
     defaultValue: ProficiencyLevel.INTERMEDIATE,
   })
-  proficiencyLevel: ProficiencyLevel
+  proficiencyLevel: ProficiencyLevel;
 
   @Column({
     type: DataType.FLOAT,
     allowNull: true,
   })
-  yearsOfExperience: number
+  yearsOfExperience: number;
 
   @Column({
     type: DataType.DATE,
     allowNull: true,
   })
-  lastUsedDate: Date
+  lastUsedDate: Date;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  icon: string
+  icon: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  color: string
+  color: string;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: false,
     defaultValue: false,
   })
-  isFeatured: boolean
+  isFeatured: boolean;
 
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
     defaultValue: 0,
   })
-  displayOrder: number
+  displayOrder: number;
 
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
     defaultValue: 0,
   })
-  endorsementCount: number
+  endorsementCount: number;
 
   @Column({
-    type: DataType.JSONB,
+    type: DataType.JSON,
     allowNull: true,
   })
-  metadata: any
+  metadata: any;
 
   @ForeignKey(() => User)
   @Column({
     type: DataType.UUID,
     allowNull: false,
   })
-  userId: string
+  userId: string;
 
   @BelongsTo(() => User)
-  user: User
+  user: User;
 
   @ForeignKey(() => Portfolio)
   @Column({
     type: DataType.UUID,
     allowNull: true,
   })
-  portfolioId: string
+  portfolioId: string;
 
   @BelongsTo(() => Portfolio)
-  portfolio: Portfolio
+  portfolio: Portfolio;
 
   @ForeignKey(() => SkillCategory)
   @Column({
     type: DataType.UUID,
     allowNull: true,
   })
-  categoryId: string
+  categoryId: string;
 
   @BelongsTo(() => SkillCategory)
-  category: SkillCategory
+  category: SkillCategory;
 
   // Many-to-many relationships can be added here
   // For example, skills to projects, skills to experiences, etc.
@@ -176,7 +184,7 @@ export class Skill extends BaseModel<Skill> {
   static async ensureDefaults(instance: Skill) {
     // Set lastUsedDate to now if not provided
     if (!instance.lastUsedDate) {
-      instance.lastUsedDate = new Date()
+      instance.lastUsedDate = new Date();
     }
   }
 
@@ -187,7 +195,7 @@ export class Skill extends BaseModel<Skill> {
       [ProficiencyLevel.INTERMEDIATE]: 50,
       [ProficiencyLevel.ADVANCED]: 75,
       [ProficiencyLevel.EXPERT]: 100,
-    }
-    return levels[this.proficiencyLevel] || 0
+    };
+    return levels[this.proficiencyLevel] || 0;
   }
 }

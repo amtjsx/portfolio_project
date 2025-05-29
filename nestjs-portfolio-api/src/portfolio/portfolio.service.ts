@@ -1,5 +1,8 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
+import { Education } from "src/education/models/education.model";
+import { Experience } from "src/experience/models/experience.model";
+import { Skill } from "src/skill/models/skill.model";
 import { Social } from "src/social/models/social.model";
 import { Project } from "../projects/models/project.model";
 import { User } from "../user/models/user.model";
@@ -143,27 +146,29 @@ export class PortfolioService {
 
   async findOne(id: string) {
     const portfolio = await this.portfolioModel.findByPk(id, {
+      attributes: [
+        "id",
+        "title",
+        "summary",
+        "customDomain",
+        "isFeatured",
+        "publishedAt",
+        "profileImageId",
+        "coverImageId",
+        "resumeId",
+      ],
       include: [
         {
-          model: User,
-          attributes: ["id", "firstName", "lastName", "email", "avatarUrl"],
-        },
-        {
           model: Project,
-          attributes: [
-            "id",
-            "title",
-            "description",
-            "technologies",
-            "status",
-            "featured",
-          ],
+          as: "projects",
           required: false,
         },
+        { model: Education, as: "educations", required: false },
+        { model: Experience, as: "experiences", required: false },
+        { model: Skill, as: "skills", required: false },
         {
           model: Social,
           as: "socialLinks",
-          attributes: ["id", "platform", "url"],
           required: false,
         },
       ],
@@ -202,8 +207,8 @@ export class PortfolioService {
       },
       include: [
         {
-          model: User,
-          attributes: ["id", "firstName", "lastName"],
+          model: Project,
+          attributes: ["id", "title", "status"],
         },
       ],
       order: [["publishedAt", "DESC"]],
@@ -223,8 +228,8 @@ export class PortfolioService {
       },
       include: [
         {
-          model: User,
-          attributes: ["id", "firstName", "lastName"],
+          model: Project,
+          attributes: ["id", "title", "status"],
         },
       ],
       order: [["createdAt", "DESC"]],

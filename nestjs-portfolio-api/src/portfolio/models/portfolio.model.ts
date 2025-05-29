@@ -10,6 +10,10 @@ import {
   Scopes,
   Table,
 } from "sequelize-typescript";
+import { Education } from "src/education/models/education.model";
+import { Experience } from "src/experience/models/experience.model";
+import { Image } from "src/image/models/image.model";
+import { Skill } from "src/skill/models/skill.model";
 import { v4 as uuidv4 } from "uuid";
 import { Analytics } from "../../analytics/models/analytics.model";
 import { Visitor } from "../../analytics/models/visitor.model";
@@ -79,6 +83,27 @@ export class Portfolio extends BaseModel<Portfolio> {
     allowNull: true,
   })
   summary: string;
+
+  @ApiProperty({
+    description: "Portfolio email",
+    example: "john@example.com",
+  })
+  @Column({ type: DataType.STRING, allowNull: false })
+  email: string;
+
+  @ApiProperty({
+    description: "Portfolio phone number",
+    example: "123-456-7890",
+  })
+  @Column({ type: DataType.STRING, allowNull: true })
+  phoneNumber: string;
+
+  @ApiProperty({
+    description: "Portfolio location",
+    example: "New York, USA",
+  })
+  @Column({ type: DataType.STRING, allowNull: true })
+  location: string;
 
   @ApiProperty({
     description: "Portfolio theme",
@@ -214,21 +239,27 @@ export class Portfolio extends BaseModel<Portfolio> {
 
   @ApiProperty({ description: "Resume/CV file URL", required: false })
   @Column({ type: DataType.UUID, allowNull: true })
-  resume_id: string;
+  resumeId: string;
 
   @ApiProperty({ description: "Portfolio cover image URL", required: false })
+  @ForeignKey(() => Image)
   @Column({
     type: DataType.UUID,
     allowNull: true,
   })
   coverImageId: string;
+  @BelongsTo(() => Image)
+  cover: Image;
 
   @ApiProperty({ description: "Profile avatar URL", required: false })
   @Column({
     type: DataType.UUID,
     allowNull: true,
   })
+  @ForeignKey(() => Image)
   profileImageId: string;
+  @BelongsTo(() => Image)
+  profile: Image;
 
   @ApiProperty({ description: "Portfolio publication status", example: true })
   @Column({
@@ -308,4 +339,13 @@ export class Portfolio extends BaseModel<Portfolio> {
 
   @HasMany(() => Visitor)
   visitors: Visitor[];
+
+  @HasMany(() => Education)
+  educations: Education[];
+
+  @HasMany(() => Experience)
+  experiences: Experience[];
+
+  @HasMany(() => Skill)
+  skills: Skill[];
 }

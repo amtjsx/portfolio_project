@@ -1,9 +1,9 @@
 "use client";
 
-import type React from "react";
 import { FileText } from "lucide-react"; // Import FileText here
+import type React from "react";
 
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,9 +12,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -22,20 +22,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Switch } from "@/components/ui/switch";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 import {
-  Upload,
-  X,
-  Plus,
+  ImageIcon,
   Palette,
+  Plus,
   Search,
   Settings,
-  ImageIcon,
+  Upload,
+  X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface PortfolioFormData {
   title: string;
@@ -122,13 +122,15 @@ export default function PortfolioForm() {
     field: keyof PortfolioFormData,
     value: any
   ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [parent]: {
-        ...prev[parent],
-        [field]: value,
-      },
-    }));
+    setFormData((prev) => {
+      return {
+        ...prev,
+        [parent]: {
+          ...prev[parent],
+          [field]: value,
+        },
+      };
+    });
   };
 
   const addKeyword = () => {
@@ -158,7 +160,7 @@ export default function PortfolioForm() {
   };
 
   return (
-    <main className="max-w-4xl mx-auto p-6 space-y-8">
+    <main className="max-w-4xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Create Portfolio</h1>

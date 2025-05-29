@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger"
+import { ApiProperty } from "@nestjs/swagger";
 import {
   BeforeCreate,
   BelongsTo,
@@ -8,12 +8,12 @@ import {
   ForeignKey,
   Scopes,
   Table,
-} from "sequelize-typescript"
-import { v4 as uuidv4 } from "uuid"
-import { BaseModel } from "../../common/models/base.model"
-import { Op } from "../../common/models/sequelize-imports"
-import { Portfolio } from "../../portfolio/models/portfolio.model"
-import { User } from "../../user/models/user.model"
+} from "sequelize-typescript";
+import { v4 as uuidv4 } from "uuid";
+import { BaseModel } from "../../common/models/base.model";
+import { Op } from "../../common/models/sequelize-imports";
+import { Portfolio } from "../../portfolio/models/portfolio.model";
+import { User } from "../../user/models/user.model";
 
 @DefaultScope(() => ({
   where: {
@@ -36,36 +36,41 @@ import { User } from "../../user/models/user.model"
   paranoid: true,
 })
 export class Project extends BaseModel<Project> {
-  @ApiProperty({ description: "Project UUID", example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiProperty({
+    description: "Project UUID",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
   @Column({
     type: DataType.UUID,
     primaryKey: true,
     defaultValue: () => uuidv4(),
   })
-  id: string
+  id: string;
 
-  @ApiProperty({ description: "User ID who owns this project", example: "123e4567-e89b-12d3-a456-426614174000" })
+  @ApiProperty({
+    description: "User ID who owns this project",
+    example: "123e4567-e89b-12d3-a456-426614174000",
+  })
   @ForeignKey(() => User)
-  @Column({
-    type: DataType.UUID,
-    allowNull: false,
-  })
-  userId: string
+  @Column({ type: DataType.UUID, allowNull: false })
+  userId: string;
 
-  @ApiProperty({ description: "Portfolio ID this project belongs to", required: false })
-  @ForeignKey(() => Portfolio)
-  @Column({
-    type: DataType.UUID,
-    allowNull: true,
+  @ApiProperty({
+    description: "Portfolio ID this project belongs to",
+    required: false,
   })
-  portfolioId: string
+  @ForeignKey(() => Portfolio)
+  @Column({ type: DataType.UUID, allowNull: true })
+  portfolioId: string;
+  @BelongsTo(() => Portfolio)
+  portfolio: Portfolio;
 
   @ApiProperty({ description: "Project title", example: "E-commerce Platform" })
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  title: string
+  title: string;
 
   @ApiProperty({
     description: "Short project description",
@@ -75,28 +80,31 @@ export class Project extends BaseModel<Project> {
     type: DataType.TEXT,
     allowNull: false,
   })
-  description: string
+  description: string;
 
   @ApiProperty({ description: "Detailed project description", required: false })
   @Column({
     type: DataType.TEXT,
     allowNull: true,
   })
-  longDescription: string
+  longDescription: string;
 
-  @ApiProperty({ description: "Technologies used in the project", example: ["React", "Node.js", "PostgreSQL"] })
+  @ApiProperty({
+    description: "Technologies used in the project",
+    example: ["React", "Node.js", "PostgreSQL"],
+  })
   @Column({
     type: DataType.JSON,
     allowNull: false,
   })
-  technologies: string[]
+  technologies: string[];
 
   @ApiProperty({ description: "Project category", example: "web" })
   @Column({
     type: DataType.STRING(100),
     allowNull: false,
   })
-  category: string
+  category: string;
 
   @ApiProperty({ description: "GitHub repository URL", required: false })
   @Column({
@@ -106,7 +114,7 @@ export class Project extends BaseModel<Project> {
       isUrl: true,
     },
   })
-  githubUrl: string
+  githubUrl: string;
 
   @ApiProperty({ description: "Live demo URL", required: false })
   @Column({
@@ -116,36 +124,39 @@ export class Project extends BaseModel<Project> {
       isUrl: true,
     },
   })
-  liveUrl: string
+  liveUrl: string;
 
   @ApiProperty({ description: "Project image URL", required: false })
   @Column({
     type: DataType.TEXT,
     allowNull: true,
   })
-  imageUrl: string
+  imageUrl: string;
 
-  @ApiProperty({ description: "Whether the project is featured", example: true })
+  @ApiProperty({
+    description: "Whether the project is featured",
+    example: true,
+  })
   @Column({
     type: DataType.BOOLEAN,
     allowNull: false,
     defaultValue: false,
   })
-  featured: boolean
+  featured: boolean;
 
   @ApiProperty({ description: "Project start date", example: "2023-01-01" })
   @Column({
     type: DataType.DATEONLY,
-    allowNull: false,
+    allowNull: true,
   })
-  startDate: string
+  startDate?: string;
 
   @ApiProperty({ description: "Project end date", required: false })
   @Column({
     type: DataType.DATEONLY,
     allowNull: true,
   })
-  endDate: string
+  endDate: string;
 
   @ApiProperty({ description: "Project status", example: "completed" })
   @Column({
@@ -153,43 +164,46 @@ export class Project extends BaseModel<Project> {
     allowNull: false,
     defaultValue: "planned",
   })
-  status: "completed" | "in-progress" | "planned"
+  status: "completed" | "in-progress" | "planned";
 
-  @ApiProperty({ description: "Project creation timestamp", example: "2023-01-01T00:00:00.000Z" })
+  @ApiProperty({
+    description: "Project creation timestamp",
+    example: "2023-01-01T00:00:00.000Z",
+  })
   @Column({
     type: DataType.DATE,
     allowNull: false,
     defaultValue: DataType.NOW,
   })
-  createdAt: Date
+  createdAt: Date;
 
-  @ApiProperty({ description: "Last update timestamp", example: "2024-01-01T00:00:00.000Z" })
+  @ApiProperty({
+    description: "Last update timestamp",
+    example: "2024-01-01T00:00:00.000Z",
+  })
   @Column({
     type: DataType.DATE,
     allowNull: false,
     defaultValue: DataType.NOW,
   })
-  updatedAt: Date
+  updatedAt: Date;
 
   @ApiProperty({ description: "Project deletion timestamp", required: false })
   @Column({
     type: DataType.DATE,
     allowNull: true,
   })
-  deletedAt: Date
+  deletedAt: Date;
 
   // Hooks
   @BeforeCreate
   static async generateUuid(instance: Project) {
     if (!instance.id) {
-      instance.id = uuidv4()
+      instance.id = uuidv4();
     }
   }
 
   // Associations
   @BelongsTo(() => User)
-  user: User
-
-  @BelongsTo(() => Portfolio)
-  portfolio: Portfolio
+  user: User;
 }

@@ -1,7 +1,9 @@
+import { Op } from "sequelize";
 import {
   BeforeCreate,
   BeforeUpdate,
   BelongsTo,
+  BelongsToMany,
   Column,
   DataType,
   DefaultScope,
@@ -11,13 +13,13 @@ import {
   Scopes,
   Table,
 } from "sequelize-typescript";
-import { Op } from "sequelize";
 import { v4 as uuidv4 } from "uuid";
 import { slugify } from "../../common/utils/string-utils";
 import { Portfolio } from "../../portfolio/models/portfolio.model";
 import { User } from "../../user/models/user.model";
 import { BlogCategory } from "./blog-category.model";
 import { BlogComment } from "./blog-comment.model";
+import { BlogTagMap } from "./blog-tag-map.model";
 import { BlogTag } from "./blog-tag.model";
 
 @DefaultScope(() => ({
@@ -299,6 +301,9 @@ export class Blog extends Model {
 
   @HasMany(() => BlogComment, "blogId")
   comments: BlogComment[];
+
+  @BelongsToMany(() => BlogTag, () => BlogTagMap)
+  tags: BlogTag[];
 
   @Column({
     type: DataType.DATE,

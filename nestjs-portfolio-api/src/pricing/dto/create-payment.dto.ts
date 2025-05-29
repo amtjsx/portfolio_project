@@ -2,9 +2,6 @@ import { ApiProperty } from "@nestjs/swagger"
 import { IsString, IsNumber, IsOptional, IsIn, IsObject, IsUUID, Min, Length } from "class-validator"
 
 export class CreatePaymentDto {
-  @ApiProperty({ description: "User ID", example: "123e4567-e89b-12d3-a456-426614174000" })
-  @IsUUID()
-  userId: string
 
   @ApiProperty({ description: "Subscription ID", example: "123e4567-e89b-12d3-a456-426614174000" })
   @IsUUID()

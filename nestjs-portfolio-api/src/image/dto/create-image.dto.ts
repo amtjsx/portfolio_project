@@ -1,15 +1,17 @@
-import { ApiProperty } from "@nestjs/swagger"
-import { IsEnum, IsOptional, IsString, IsUUID, IsBoolean, IsArray, IsNumber, Min, Max } from "class-validator"
-import { ImageCategory } from "../models/image.model"
+import { ApiProperty } from "@nestjs/swagger";
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  Max,
+  Min,
+} from "class-validator";
+import { ImageCategory } from "../models/image.model";
 
 export class CreateImageDto {
-  @ApiProperty({
-    description: "User ID who is uploading the image",
-    example: "123e4567-e89b-12d3-a456-426614174000",
-  })
-  @IsUUID(4)
-  userId: string
-
   @ApiProperty({
     description: "Image category",
     example: "avatar",
@@ -18,7 +20,7 @@ export class CreateImageDto {
   })
   @IsEnum(ImageCategory)
   @IsOptional()
-  category?: ImageCategory
+  category?: ImageCategory;
 
   @ApiProperty({
     description: "Image title",
@@ -27,7 +29,7 @@ export class CreateImageDto {
   })
   @IsString()
   @IsOptional()
-  title?: string
+  title?: string;
 
   @ApiProperty({
     description: "Image alt text",
@@ -36,7 +38,7 @@ export class CreateImageDto {
   })
   @IsString()
   @IsOptional()
-  altText?: string
+  altText?: string;
 
   @ApiProperty({
     description: "Image caption",
@@ -45,7 +47,7 @@ export class CreateImageDto {
   })
   @IsString()
   @IsOptional()
-  caption?: string
+  caption?: string;
 
   @ApiProperty({
     description: "Image description",
@@ -54,29 +56,27 @@ export class CreateImageDto {
   })
   @IsString()
   @IsOptional()
-  description?: string
+  description?: string;
 
   @ApiProperty({
     description: "Image focal point X (0-1)",
     example: 0.5,
     required: false,
   })
-  @IsNumber()
-  @Min(0)
-  @Max(1)
+  // @Min(0)
+  // @Max(1)
   @IsOptional()
-  focalPointX?: number
+  focalPointX?: number;
 
   @ApiProperty({
     description: "Image focal point Y (0-1)",
     example: 0.5,
     required: false,
   })
-  @IsNumber()
-  @Min(0)
-  @Max(1)
+  // @Min(0)
+  // @Max(1)
   @IsOptional()
-  focalPointY?: number
+  focalPointY?: number;
 
   @ApiProperty({
     description: "Image tags",
@@ -87,16 +87,16 @@ export class CreateImageDto {
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
-  tags?: string[]
+  tags?: string[];
 
-  @ApiProperty({
-    description: "Whether image is public",
-    example: true,
-    default: true,
-  })
-  @IsBoolean()
-  @IsOptional()
-  isPublic?: boolean
+  // @ApiProperty({
+  //   description: "Whether image is public",
+  //   example: true,
+  //   default: true,
+  // })
+  // @IsBoolean()
+  // @IsOptional()
+  // isPublic?: boolean;
 
   @ApiProperty({
     description: "Generate variants automatically",
@@ -105,5 +105,5 @@ export class CreateImageDto {
   })
   @IsBoolean()
   @IsOptional()
-  generateVariants?: boolean
+  generateVariants?: boolean;
 }

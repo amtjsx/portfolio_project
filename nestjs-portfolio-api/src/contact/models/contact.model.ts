@@ -51,6 +51,13 @@ export class Contact extends BaseModel<Contact> {
   })
   userId: string
 
+  @ApiProperty({ description: "Portfolio ID this contact is for", example: "123e4567-e89b-12d3-a456-426614174000" })
+  @Column({
+    type: DataType.UUID,
+    allowNull: true,
+  })
+  portfolioId: string
+
   @ApiProperty({ description: "Full name of the person contacting", example: "John Doe" })
   @Column({
     type: DataType.STRING,

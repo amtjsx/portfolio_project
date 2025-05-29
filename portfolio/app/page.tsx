@@ -19,6 +19,7 @@ import { useActiveSection } from "@/hooks/use-active-section";
 import { usePageTracking } from "@/hooks/use-analytics";
 import { motion } from "framer-motion";
 import "./grid-pattern.css";
+import { usePortfolio } from "./portfolio";
 
 export default function Home() {
   const activeSection = useActiveSection();
@@ -45,11 +46,11 @@ export default function Home() {
       <Header activeSection={activeSection} />
       <main className="flex-1">
         <EnhancedHeroSection />
-        <BlogSection />
-        <AboutSection />
         <EnhancedProjectsSection />
+        <AboutSection />
         <SkillsSection />
         <TestimonialsSection />
+        <BlogSection />
         <ContactSection />
       </main>
       <ScrollToTopButton />

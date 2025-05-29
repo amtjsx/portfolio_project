@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { AdminNavigation } from "@/components/admin/admin-nav";
+import { AdminNavigation } from "@/components/admin/app-sidebar";
 import { AuthGuard } from "@/components/auth/auth-guard";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import PortfolioProvider from "@/contexts/portfolio-provider";
 import { useAuth } from "@/lib/auth";
 import { CreditCard, Crown, LogOut, Settings } from "lucide-react";
@@ -117,12 +118,12 @@ export default function AdminLayout({
           </div>
         </header>
 
-        <div className="h-[calc(100vh-4.3rem)] flex">
-          <PortfolioProvider>
+        <PortfolioProvider>
+          <SidebarProvider>
             <AdminNavigation />
-            <main className="flex-1 h-full overflow-y-auto">{children}</main>
-          </PortfolioProvider>
-        </div>
+            <SidebarInset>{children}</SidebarInset>
+          </SidebarProvider>
+        </PortfolioProvider>
       </div>
     </AuthGuard>
   );

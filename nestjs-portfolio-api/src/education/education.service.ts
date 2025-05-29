@@ -1,17 +1,17 @@
 import {
+  BadRequestException,
   Injectable,
   NotFoundException,
-  BadRequestException,
 } from "@nestjs/common";
+import { InjectModel } from "@nestjs/sequelize";
 import { Op, type WhereOptions } from "sequelize";
-import { Education } from "./models/education.model";
+import { Portfolio } from "../portfolio/models/portfolio.model";
+import { User } from "../user/models/user.model";
 import { CreateEducationDto } from "./dto/create-education.dto";
-import { UpdateEducationDto } from "./dto/update-education.dto";
 import { EducationQueryDto } from "./dto/education-query.dto";
 import { ReorderEducationDto } from "./dto/reorder-education.dto";
-import { User } from "../user/models/user.model";
-import { Portfolio } from "../portfolio/models/portfolio.model";
-import { InjectModel } from "@nestjs/sequelize";
+import { UpdateEducationDto } from "./dto/update-education.dto";
+import { Education } from "./models/education.model";
 
 @Injectable()
 export class EducationService {
@@ -24,44 +24,18 @@ export class EducationService {
     private portfolioModel: typeof Portfolio
   ) {}
 
-  async create(createEducationDto: CreateEducationDto): Promise<Education> {
-    // Check if user exists
-    const user = await this.userModel.findByPk(createEducationDto.userId);
-    if (!user) {
-      throw new NotFoundException(
-        `User with ID ${createEducationDto.userId} not found`
-      );
-    }
-
-    // Check if portfolio exists if portfolioId is provided
-    if (createEducationDto.portfolioId) {
-      const portfolio = await this.portfolioModel.findByPk(
-        createEducationDto.portfolioId
-      );
-      if (!portfolio) {
-        throw new NotFoundException(
-          `Portfolio with ID ${createEducationDto.portfolioId} not found`
-        );
-      }
-
-      // Check if portfolio belongs to the user
-      if (portfolio.userId !== createEducationDto.userId) {
-        throw new BadRequestException(
-          `Portfolio with ID ${createEducationDto.portfolioId} does not belong to user with ID ${createEducationDto.userId}`
-        );
-      }
-    }
-
-    // Create education
-    return this.educationModel.create(createEducationDto);
+  async create(
+    createEducationDto: CreateEducationDto,
+    user: User
+  ): Promise<Education> {
+    return this.educationModel.create({
+      ...createEducationDto,
+      portfolioId: user.id,
+      userId: user.id,
+    });
   }
 
-  async findAll(query: EducationQueryDto): Promise<{
-    data: Education[];
-    count: number;
-    totalPages: number;
-    currentPage: number;
-  }> {
+  async findAll(query: EducationQueryDto) {
     const {
       userId,
       portfolioId,
@@ -149,34 +123,18 @@ export class EducationService {
     // Calculate offset
     const offset = (page - 1) * limit;
 
-    // Get total count
-    const count = await this.educationModel.count({ where: whereClause });
-
     // Get data with pagination
-    const data = await this.educationModel.findAll({
+    const data = await this.educationModel.findAndCountAll({
       where: whereClause,
       order: [[sortBy, sortDirection]],
       limit,
       offset,
-      include: [
-        {
-          model: User,
-          attributes: ["id", "firstName", "lastName", "email"],
-        },
-        {
-          model: Portfolio,
-          attributes: ["id", "title", "slug"],
-        },
-      ],
     });
 
-    // Calculate total pages
-    const totalPages = Math.ceil(count / limit);
-
     return {
-      data,
-      count,
-      totalPages,
+      data: data.rows,
+      total: data.count,
+      totalPages: Math.ceil(data.count / limit),
       currentPage: page,
     };
   }
@@ -252,25 +210,6 @@ export class EducationService {
     updateEducationDto: UpdateEducationDto
   ): Promise<Education> {
     const education = await this.findOne(id);
-
-    // Check if portfolio exists if portfolioId is provided
-    if (updateEducationDto.portfolioId) {
-      const portfolio = await this.portfolioModel.findByPk(
-        updateEducationDto.portfolioId
-      );
-      if (!portfolio) {
-        throw new NotFoundException(
-          `Portfolio with ID ${updateEducationDto.portfolioId} not found`
-        );
-      }
-
-      // Check if portfolio belongs to the user
-      if (portfolio.userId !== education.userId) {
-        throw new BadRequestException(
-          `Portfolio with ID ${updateEducationDto.portfolioId} does not belong to user with ID ${education.userId}`
-        );
-      }
-    }
 
     // Update education
     await education.update(updateEducationDto);

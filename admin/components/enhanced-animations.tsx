@@ -1,22 +1,26 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { motion } from "framer-motion"
-import { useRef, useState, useEffect } from "react"
-import { useInView } from "framer-motion"
-import { cn } from "@/lib/utils"
-import { useScrollProgress, useParallax, useStaggeredInView, useMousePosition } from "@/hooks/use-scroll-animations"
+import {
+  useMousePosition,
+  useParallax,
+  useScrollProgress,
+  useStaggeredInView,
+} from "@/hooks/use-scroll-animations";
+import { cn } from "@/lib/utils";
+import { motion, useInView } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
 // Enhanced Button with micro-interactions
 interface EnhancedButtonProps {
-  children: React.ReactNode
-  variant?: "primary" | "secondary" | "outline"
-  size?: "sm" | "md" | "lg"
-  className?: string
-  onClick?: () => void
-  href?: string
-  disabled?: boolean
+  children: React.ReactNode;
+  variant?: "primary" | "secondary" | "outline";
+  size?: "sm" | "md" | "lg";
+  className?: string;
+  onClick?: () => void;
+  href?: string;
+  disabled?: boolean;
 }
 
 export function EnhancedButton({
@@ -28,8 +32,8 @@ export function EnhancedButton({
   href,
   disabled = false,
 }: EnhancedButtonProps) {
-  const [isHovered, setIsHovered] = useState(false)
-  const [isPressed, setIsPressed] = useState(false)
+  const [isHovered, setIsHovered] = useState(false);
+  const [isPressed, setIsPressed] = useState(false);
 
   const buttonVariants = {
     idle: {
@@ -48,9 +52,9 @@ export function EnhancedButton({
       y: 0,
       transition: { type: "spring", stiffness: 400, damping: 10 },
     },
-  }
+  };
 
-  const Component = href ? motion.a : motion.button
+  const Component = href ? motion.a : motion.button;
 
   return (
     <Component
@@ -67,7 +71,7 @@ export function EnhancedButton({
           "px-4 py-2 text-base": size === "md",
           "px-6 py-3 text-lg": size === "lg",
         },
-        className,
+        className
       )}
       variants={buttonVariants}
       initial="idle"
@@ -99,30 +103,36 @@ export function EnhancedButton({
 
       <span className="relative z-10">{children}</span>
     </Component>
-  )
+  );
 }
 
 // Magnetic interaction component
-export function MagneticWrapper({ children, strength = 0.3 }: { children: React.ReactNode; strength?: number }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
+export function MagneticWrapper({
+  children,
+  strength = 0.3,
+}: {
+  children: React.ReactNode;
+  strength?: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ x: 0, y: 0 });
 
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!ref.current) return
+    if (!ref.current) return;
 
-    const rect = ref.current.getBoundingClientRect()
-    const centerX = rect.left + rect.width / 2
-    const centerY = rect.top + rect.height / 2
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
 
-    const deltaX = (e.clientX - centerX) * strength
-    const deltaY = (e.clientY - centerY) * strength
+    const deltaX = (e.clientX - centerX) * strength;
+    const deltaY = (e.clientY - centerY) * strength;
 
-    setPosition({ x: deltaX, y: deltaY })
-  }
+    setPosition({ x: deltaX, y: deltaY });
+  };
 
   const handleMouseLeave = () => {
-    setPosition({ x: 0, y: 0 })
-  }
+    setPosition({ x: 0, y: 0 });
+  };
 
   return (
     <motion.div
@@ -134,41 +144,50 @@ export function MagneticWrapper({ children, strength = 0.3 }: { children: React.
     >
       {children}
     </motion.div>
-  )
+  );
 }
 
 // Scroll progress indicator
 export function ScrollProgressBar() {
-  const scaleX = useScrollProgress()
+  const scaleX = useScrollProgress();
 
-  return <motion.div className="fixed top-0 left-0 right-0 h-1 bg-primary z-50 origin-left" style={{ scaleX }} />
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-1 bg-primary z-50 origin-left"
+      style={{ scaleX }}
+    />
+  );
 }
 
 // Enhanced card with hover effects
 interface EnhancedCardProps {
-  children: React.ReactNode
-  className?: string
-  hoverEffect?: "lift" | "glow" | "tilt" | "scale"
+  children: React.ReactNode;
+  className?: string;
+  hoverEffect?: "lift" | "glow" | "tilt" | "scale";
 }
 
-export function EnhancedCard({ children, className, hoverEffect = "lift" }: EnhancedCardProps) {
-  const [isHovered, setIsHovered] = useState(false)
-  const mousePosition = useMousePosition()
-  const ref = useRef<HTMLDivElement>(null)
-  const [cardPosition, setCardPosition] = useState({ x: 0, y: 0 })
+export function EnhancedCard({
+  children = "test",
+  className,
+  hoverEffect = "lift",
+}: EnhancedCardProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  const mousePosition = useMousePosition();
+  const ref = useRef<HTMLDivElement>(null);
+  const [cardPosition, setCardPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    if (!ref.current || !isHovered) return
+    if (!ref.current || !isHovered) return;
 
-    const rect = ref.current.getBoundingClientRect()
-    const centerX = rect.left + rect.width / 2
-    const centerY = rect.top + rect.height / 2
+    const rect = ref.current.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
 
-    const rotateX = (mousePosition.y - centerY) / 10
-    const rotateY = (centerX - mousePosition.x) / 10
+    const rotateX = (mousePosition.y - centerY) / 10;
+    const rotateY = (centerX - mousePosition.x) / 10;
 
-    setCardPosition({ x: rotateY, y: rotateX })
-  }, [mousePosition, isHovered])
+    setCardPosition({ x: rotateY, y: rotateX });
+  }, [mousePosition, isHovered]);
 
   const cardVariants = {
     idle: {
@@ -181,11 +200,14 @@ export function EnhancedCard({ children, className, hoverEffect = "lift" }: Enha
       scale: hoverEffect === "scale" ? 1.05 : 1.02,
       rotateX: hoverEffect === "tilt" ? cardPosition.y : 0,
       rotateY: hoverEffect === "tilt" ? cardPosition.x : 0,
-      boxShadow: hoverEffect === "glow" ? "0 20px 40px rgba(var(--primary), 0.3)" : "0 20px 40px rgba(0, 0, 0, 0.15)",
+      boxShadow:
+        hoverEffect === "glow"
+          ? "0 20px 40px rgba(var(--primary), 0.3)"
+          : "0 20px 40px rgba(0, 0, 0, 0.15)",
       y: hoverEffect === "lift" ? -8 : 0,
       transition: { type: "spring", stiffness: 300, damping: 20 },
     },
-  }
+  };
 
   return (
     <motion.div
@@ -200,15 +222,21 @@ export function EnhancedCard({ children, className, hoverEffect = "lift" }: Enha
     >
       {children}
     </motion.div>
-  )
+  );
 }
 
 // Text reveal animation
-export function TextReveal({ children, delay = 0 }: { children: string; delay?: number }) {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.5 })
+export function TextReveal({
+  children = "test",
+  delay = 0,
+}: {
+  children: string;
+  delay?: number;
+}) {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, amount: 0.5 });
 
-  const words = children.split(" ")
+  const words = children.split(" ");
 
   return (
     <span ref={ref} className="inline-block">
@@ -228,12 +256,18 @@ export function TextReveal({ children, delay = 0 }: { children: string; delay?: 
         </motion.span>
       ))}
     </span>
-  )
+  );
 }
 
 // Staggered list animation
-export function StaggeredList({ children, className }: { children: React.ReactNode[]; className?: string }) {
-  const { ref, isInView } = useStaggeredInView()
+export function StaggeredList({
+  children,
+  className,
+}: {
+  children: React.ReactNode[];
+  className?: string;
+}) {
+  const { ref, isInView } = useStaggeredInView();
 
   return (
     <div ref={ref} className={className}>
@@ -252,22 +286,34 @@ export function StaggeredList({ children, className }: { children: React.ReactNo
         </motion.div>
       ))}
     </div>
-  )
+  );
 }
 
 // Parallax container
-export function ParallaxContainer({ children, offset = 50 }: { children: React.ReactNode; offset?: number }) {
-  const { ref, y } = useParallax(offset)
+export function ParallaxContainer({
+  children,
+  offset = 50,
+}: {
+  children: React.ReactNode;
+  offset?: number;
+}) {
+  const { ref, y } = useParallax(offset);
 
   return (
     <motion.div ref={ref} style={{ y }}>
       {children}
     </motion.div>
-  )
+  );
 }
 
 // Floating elements
-export function FloatingElement({ children, duration = 6 }: { children: React.ReactNode; duration?: number }) {
+export function FloatingElement({
+  children,
+  duration = 6,
+}: {
+  children: React.ReactNode;
+  duration?: number;
+}) {
   return (
     <motion.div
       animate={{
@@ -282,7 +328,7 @@ export function FloatingElement({ children, duration = 6 }: { children: React.Re
     >
       {children}
     </motion.div>
-  )
+  );
 }
 
 // Morphing blob background
@@ -301,5 +347,5 @@ export function MorphingBlob({ className }: { className?: string }) {
         ease: "linear",
       }}
     />
-  )
+  );
 }

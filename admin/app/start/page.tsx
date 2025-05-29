@@ -42,6 +42,9 @@ interface PortfolioFormData {
   title: string;
   subtitle: string;
   summary: string;
+  email: string;
+  phoneNumber: string;
+  location: string;
   theme: "modern" | "classic" | "minimal" | "creative";
   primaryColor: string;
   secondaryColor: string;
@@ -77,6 +80,9 @@ export default function PortfolioForm() {
     title: "",
     subtitle: "",
     summary: "",
+    email: "",
+    phoneNumber: "",
+    location: "",
     theme: "modern",
     primaryColor: "#3B82F6",
     secondaryColor: "#1E40AF",
@@ -219,6 +225,37 @@ export default function PortfolioForm() {
                     </SelectContent>
                   </Select>
                 </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  placeholder="john@example.com"
+                  value={formData.email}
+                  onChange={(e) => updateFormData("email", e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="phoneNumber">Phone Number</Label>
+                <Input
+                  id="phoneNumber"
+                  placeholder="123-456-7890"
+                  value={formData.phoneNumber}
+                  onChange={(e) => updateFormData("phoneNumber", e.target.value)}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  placeholder="New York, USA"
+                  value={formData.location}
+                  onChange={(e) => updateFormData("location", e.target.value)}
+                />
               </div>
 
               <div className="space-y-2">

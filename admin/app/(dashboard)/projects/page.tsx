@@ -1,27 +1,15 @@
-"use client";
-
-import { ProjectsManager } from "@/app/(dashboard)/projects/projects-manager";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { Suspense } from "react"
+import { ProjectsList } from "./components/projects-list"
+import { ProjectsHeader } from "./components/projects-header"
+import { ProjectsLoading } from "./components/projects-loading"
 
 export default function ProjectsPage() {
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold tracking-tight">
-            Projects Management
-          </h1>
-          <p className="text-muted-foreground">
-            Add, edit, and showcase your portfolio projects with images,
-            descriptions, and technologies used.
-          </p>
-        </div>
-        <Link href="/projects/create">
-          <Button variant="default">Create Project</Button>
-        </Link>
-      </div>{" "}
-      <ProjectsManager />
+    <div className="container py-10 max-w-7xl">
+      <ProjectsHeader />
+      <Suspense fallback={<ProjectsLoading />}>
+        <ProjectsList />
+      </Suspense>
     </div>
-  );
+  )
 }

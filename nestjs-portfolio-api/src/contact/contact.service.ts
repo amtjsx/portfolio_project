@@ -10,10 +10,27 @@ export class ContactService {
     @InjectModel(Contact) private readonly contactModel: typeof Contact
   ) {}
 
-  async create(createContactDto: CreateContactDto) {
+  async create(createContactDto: CreateContactDto, user: User) {
+    const exist = await this.contactModel.findByPk(user.id);
+
+    if (exist) {
+      await exist.update({
+        ...createContactDto,
+        status: "new",
+      });
+
+      return {
+        message: "Contact form updated successfully",
+        id: exist.id,
+        contact: exist,
+      };
+    }
+
     const contact = await this.contactModel.create({
       ...createContactDto,
       status: "new",
+      userId: user.id,
+      id: user.id,
     });
 
     // Here you would typically send an email notification

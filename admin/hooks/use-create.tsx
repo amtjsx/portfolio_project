@@ -98,7 +98,9 @@ export function useCreate<T = any, E = any>(
         );
         return response as T;
       } catch (err: any) {
-        toast.error(err.response?.message || err.message);
+        toast.error(err.response?.message || err.message, {
+          className: "bg-red-500",
+        });
         throw err;
       } finally {
         setCreating(false);

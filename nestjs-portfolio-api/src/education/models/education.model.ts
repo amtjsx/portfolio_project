@@ -35,6 +35,9 @@ export enum EducationType {
   underscored: true,
 })
 export class Education extends BaseModel<Education> {
+  @Column({ primaryKey: true, defaultValue: DataType.UUIDV4 })
+  id: string;
+
   @AllowNull(false)
   @Column(DataType.STRING)
   institutionName: string;
@@ -145,7 +148,6 @@ export class Education extends BaseModel<Education> {
   @Index
   @Column(DataType.UUID)
   userId: string;
-
   @BelongsTo(() => User)
   user: User;
 
@@ -154,7 +156,6 @@ export class Education extends BaseModel<Education> {
   @Index
   @Column(DataType.UUID)
   portfolioId: string;
-
   @BelongsTo(() => Portfolio)
   portfolio: Portfolio;
 

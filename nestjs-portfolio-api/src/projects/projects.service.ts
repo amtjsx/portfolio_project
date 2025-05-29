@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
-import { Portfolio } from "../portfolio/models/portfolio.model";
 import { User } from "../user/models/user.model";
 import { CreateProjectDto } from "./dto/create-project.dto";
 import { UpdateProjectDto } from "./dto/update-project.dto";
@@ -12,40 +11,20 @@ export class ProjectsService {
     @InjectModel(Project) private readonly projectModel: typeof Project
   ) {}
 
-  async findAll() {
-    const projects = await this.projectModel.findAll({
-      include: [
-        {
-          model: User,
-          attributes: ["id", "firstName", "lastName", "username"],
-        },
-        {
-          model: Portfolio,
-          attributes: ["id", "title"],
-        },
-      ],
+  async findAll(query: any, user: User) {
+    const { rows, count } = await this.projectModel.findAndCountAll({
+      where: { userId: user.id },
       order: [["createdAt", "DESC"]],
     });
 
     return {
-      data: projects,
-      total: projects.length,
+      data: rows,
+      total: count,
     };
   }
 
   async findOne(id: number) {
-    const project = await this.projectModel.findByPk(id, {
-      include: [
-        {
-          model: User,
-          attributes: ["id", "firstName", "lastName", "username", "email"],
-        },
-        {
-          model: Portfolio,
-          attributes: ["id", "title", "theme"],
-        },
-      ],
-    });
+    const project = await this.projectModel.findByPk(id);
 
     if (!project) {
       throw new NotFoundException(`Project with ID ${id} not found`);
@@ -53,8 +32,12 @@ export class ProjectsService {
     return project;
   }
 
-  async create(createProjectDto: CreateProjectDto) {
-    const project = await this.projectModel.create(createProjectDto);
+  async create(createProjectDto: CreateProjectDto, user: User) {
+    const project = await this.projectModel.create({
+      ...createProjectDto,
+      userId: user.id,
+      portfolioId: user.id,
+    });
     return project;
   }
 

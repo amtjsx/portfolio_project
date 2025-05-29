@@ -1,5 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger"
-import { IsString, IsArray, IsBoolean, IsOptional, IsIn } from "class-validator"
+import { ApiProperty } from "@nestjs/swagger";
+import {
+  IsString,
+  IsArray,
+  IsBoolean,
+  IsOptional,
+  IsIn,
+  IsDateString,
+} from "class-validator";
 
 export class CreateProjectDto {
   @ApiProperty({
@@ -7,23 +14,24 @@ export class CreateProjectDto {
     example: "E-commerce Platform",
   })
   @IsString()
-  title: string
+  title: string;
 
   @ApiProperty({
     description: "Short project description",
     example: "Full-stack e-commerce solution with React and Node.js",
   })
   @IsString()
-  description: string
+  description: string;
 
   @ApiProperty({
     description: "Detailed project description",
-    example: "A comprehensive e-commerce platform featuring user authentication...",
+    example:
+      "A comprehensive e-commerce platform featuring user authentication...",
     required: false,
   })
   @IsOptional()
   @IsString()
-  longDescription?: string
+  longDescription?: string;
 
   @ApiProperty({
     description: "Technologies used in the project",
@@ -32,14 +40,14 @@ export class CreateProjectDto {
   })
   @IsArray()
   @IsString({ each: true })
-  technologies: string[]
+  technologies: string[];
 
   @ApiProperty({
     description: "Project category",
     example: "web",
   })
   @IsString()
-  category: string
+  category: string;
 
   @ApiProperty({
     description: "GitHub repository URL",
@@ -48,7 +56,7 @@ export class CreateProjectDto {
   })
   @IsOptional()
   @IsString()
-  githubUrl?: string
+  githubUrl?: string;
 
   @ApiProperty({
     description: "Live demo URL",
@@ -57,7 +65,7 @@ export class CreateProjectDto {
   })
   @IsOptional()
   @IsString()
-  liveUrl?: string
+  liveUrl?: string;
 
   @ApiProperty({
     description: "Project image URL (use /api/upload/image endpoint to upload)",
@@ -66,21 +74,22 @@ export class CreateProjectDto {
   })
   @IsOptional()
   @IsString()
-  imageUrl?: string
+  imageUrl?: string;
 
   @ApiProperty({
     description: "Whether the project is featured",
     example: true,
   })
   @IsBoolean()
-  featured: boolean
+  featured: boolean;
 
   @ApiProperty({
     description: "Project start date",
     example: "2023-01-01",
   })
-  @IsString()
-  startDate: string
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
 
   @ApiProperty({
     description: "Project end date",
@@ -88,8 +97,8 @@ export class CreateProjectDto {
     required: false,
   })
   @IsOptional()
-  @IsString()
-  endDate?: string
+  @IsDateString()
+  endDate?: string;
 
   @ApiProperty({
     description: "Project status",
@@ -97,5 +106,5 @@ export class CreateProjectDto {
     enum: ["completed", "in-progress", "planned"],
   })
   @IsIn(["completed", "in-progress", "planned"])
-  status: "completed" | "in-progress" | "planned"
+  status: "completed" | "in-progress" | "planned";
 }

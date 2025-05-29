@@ -53,7 +53,7 @@ module.exports = {
         defaultValue: 0,
       },
       metadata: {
-        type: Sequelize.JSONB,
+        type: Sequelize.JSON,
         allowNull: true,
       },
       user_id: {

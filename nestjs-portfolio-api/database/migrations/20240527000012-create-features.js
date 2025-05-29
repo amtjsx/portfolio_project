@@ -8,7 +8,7 @@ module.exports = {
         allowNull: false,
       },
       name: {
-        type: Sequelize.STRING(100),
+        type: Sequelize.STRING,
         allowNull: false,
         unique: true,
       },
@@ -17,7 +17,7 @@ module.exports = {
         allowNull: true,
       },
       key: {
-        type: Sequelize.STRING(50),
+        type: Sequelize.STRING,
         allowNull: false,
         unique: true,
       },
@@ -32,7 +32,7 @@ module.exports = {
         defaultValue: "boolean",
       },
       icon: {
-        type: Sequelize.STRING(255),
+        type: Sequelize.STRING,
         allowNull: true,
       },
       sort_order: {

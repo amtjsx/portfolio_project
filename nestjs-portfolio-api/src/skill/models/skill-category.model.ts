@@ -25,6 +25,14 @@ import { BaseModel } from "../../common/models/base.model"
 })
 export class SkillCategory extends BaseModel<SkillCategory> {
   @Column({
+    type: DataType.UUID,
+    allowNull: false,
+    primaryKey: true,
+    defaultValue: DataType.UUIDV4,
+  })
+  id: string
+
+  @Column({
     type: DataType.STRING,
     allowNull: false,
   })
@@ -35,18 +43,6 @@ export class SkillCategory extends BaseModel<SkillCategory> {
     allowNull: true,
   })
   description: string
-
-  @Column({
-    type: DataType.STRING,
-    allowNull: true,
-  })
-  icon: string
-
-  @Column({
-    type: DataType.STRING,
-    allowNull: true,
-  })
-  color: string
 
   @Column({
     type: DataType.INTEGER,

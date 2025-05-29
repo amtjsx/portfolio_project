@@ -16,16 +16,6 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger"
 import { EducationType } from "../models/education.model"
 
 export class CreateEducationDto {
-  @ApiProperty({ description: "User ID" })
-  @IsNotEmpty()
-  @IsUUID()
-  userId: string
-
-  @ApiPropertyOptional({ description: "Portfolio ID" })
-  @IsOptional()
-  @IsUUID()
-  portfolioId?: string
-
   @ApiProperty({ description: "Institution name" })
   @IsNotEmpty()
   @IsString()

@@ -1,24 +1,26 @@
-"use client"
+"use client";
 
-import Image from "next/image"
-import { ArrowRight, Sparkles } from "lucide-react"
-import { motion, useScroll, useTransform } from "framer-motion"
+import { usePortfolio } from "@/app/portfolio";
 import {
   EnhancedButton,
-  MagneticWrapper,
-  TextReveal,
   FloatingElement,
+  MagneticWrapper,
   MorphingBlob,
-} from "@/components/enhanced-animations"
-import { useInteractionTracking } from "@/hooks/use-analytics"
+  TextReveal,
+} from "@/components/enhanced-animations";
+import { useInteractionTracking } from "@/hooks/use-analytics";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowRight, Sparkles } from "lucide-react";
+import Image from "next/image";
 
 export function EnhancedHeroSection() {
-  const { trackInteraction } = useInteractionTracking()
-  const { scrollY } = useScroll()
-  const y1 = useTransform(scrollY, [0, 300], [0, -50])
-  const y2 = useTransform(scrollY, [0, 300], [0, -100])
-  const opacity = useTransform(scrollY, [0, 300], [1, 0])
+  const { trackInteraction } = useInteractionTracking();
+  const { scrollY } = useScroll();
+  const y1 = useTransform(scrollY, [0, 300], [0, -50]);
+  const y2 = useTransform(scrollY, [0, 300], [0, -100]);
+  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
+  const { portfolio } = usePortfolio();
   return (
     <section className="relative overflow-hidden min-h-screen flex items-center">
       {/* Animated background elements */}
@@ -56,8 +58,18 @@ export function EnhancedHeroSection() {
       <motion.div className="absolute inset-0 opacity-5" style={{ y: y1 }}>
         <svg className="h-full w-full" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="1" />
+            <pattern
+              id="grid"
+              width="40"
+              height="40"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M 40 0 L 0 0 0 40"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1"
+              />
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#grid)" />
@@ -78,15 +90,24 @@ export function EnhancedHeroSection() {
                 <motion.span
                   className="mr-2 rounded-full bg-primary h-2 w-2"
                   animate={{
-                    boxShadow: ["0 0 0 0 rgba(var(--primary), 0.7)", "0 0 0 10px rgba(var(--primary), 0)"],
+                    boxShadow: [
+                      "0 0 0 0 rgba(var(--primary), 0.7)",
+                      "0 0 0 10px rgba(var(--primary), 0)",
+                    ],
                   }}
                   transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
                 />
-                <span className="text-muted-foreground">Available for new projects</span>
+                <span className="text-muted-foreground">
+                  {portfolio?.status}
+                </span>
                 <motion.div
                   className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12"
                   animate={{ x: ["-100%", "100%"] }}
-                  transition={{ duration: 3, repeat: Number.POSITIVE_INFINITY, repeatDelay: 2 }}
+                  transition={{
+                    duration: 3,
+                    repeat: Number.POSITIVE_INFINITY,
+                    repeatDelay: 2,
+                  }}
                 />
               </motion.div>
 
@@ -96,7 +117,11 @@ export function EnhancedHeroSection() {
                   className="block"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{
+                    delay: 0.3,
+                    duration: 0.8,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 >
                   Hi, I'm
                 </motion.span>
@@ -104,13 +129,23 @@ export function EnhancedHeroSection() {
                   className="block bg-gradient-to-r from-primary to-purple-400 dark:from-primary dark:to-blue-400 bg-clip-text text-transparent relative"
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{
+                    delay: 0.5,
+                    duration: 0.8,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                 >
-                  <TextReveal delay={0.7}>Alex Morgan</TextReveal>
+                  <TextReveal delay={0.7}>
+                    {portfolio?.name || "test name"}
+                  </TextReveal>
                   <motion.div
                     className="absolute -top-4 -right-4"
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 8, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
+                    transition={{
+                      duration: 8,
+                      repeat: Number.POSITIVE_INFINITY,
+                      ease: "linear",
+                    }}
                   >
                     <Sparkles className="h-8 w-8 text-primary/60" />
                   </motion.div>
@@ -121,12 +156,14 @@ export function EnhancedHeroSection() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                transition={{
+                  delay: 0.8,
+                  duration: 0.8,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
                 className="max-w-[600px] text-xl text-muted-foreground md:text-2xl"
               >
-                <TextReveal delay={1}>
-                  A passionate full-stack developer crafting beautiful digital experiences
-                </TextReveal>
+                <TextReveal delay={1}>{portfolio?.title}</TextReveal>
               </motion.div>
             </div>
 
@@ -134,14 +171,20 @@ export function EnhancedHeroSection() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              transition={{
+                delay: 1.2,
+                duration: 0.8,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className="flex flex-col gap-4 sm:flex-row"
             >
               <MagneticWrapper>
                 <EnhancedButton
                   variant="primary"
                   size="lg"
-                  onClick={() => trackInteraction("click", "hero-cta", "button")}
+                  onClick={() =>
+                    trackInteraction("click", "hero-cta", "button")
+                  }
                   href="#projects"
                   className="group"
                 >
@@ -149,7 +192,10 @@ export function EnhancedHeroSection() {
                   <motion.div
                     className="ml-2 inline-block"
                     animate={{ x: [0, 5, 0] }}
-                    transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
+                    transition={{
+                      duration: 1.5,
+                      repeat: Number.POSITIVE_INFINITY,
+                    }}
                   >
                     <ArrowRight className="h-4 w-4" />
                   </motion.div>
@@ -160,7 +206,9 @@ export function EnhancedHeroSection() {
                 <EnhancedButton
                   variant="outline"
                   size="lg"
-                  onClick={() => trackInteraction("click", "hero-contact", "button")}
+                  onClick={() =>
+                    trackInteraction("click", "hero-contact", "button")
+                  }
                   href="#contact"
                   className="bg-background/50 backdrop-blur-sm border-border"
                 >
@@ -173,7 +221,11 @@ export function EnhancedHeroSection() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.4, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              transition={{
+                delay: 1.4,
+                duration: 0.8,
+                ease: [0.22, 1, 0.36, 1],
+              }}
               className="flex items-center gap-4 text-muted-foreground"
             >
               <div className="flex -space-x-2">
@@ -194,7 +246,12 @@ export function EnhancedHeroSection() {
                     }}
                     className="relative h-8 w-8 overflow-hidden rounded-full border-2 border-background cursor-pointer"
                   >
-                    <Image src={`/client-${i}.png`} alt={`Client ${i}`} fill className="object-cover" />
+                    <Image
+                      src={`/client-${i}.png`}
+                      alt={`Client ${i}`}
+                      fill
+                      className="object-cover"
+                    />
                   </motion.div>
                 ))}
               </div>
@@ -204,7 +261,10 @@ export function EnhancedHeroSection() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 1.8 }}
               >
-                <span className="font-medium">20+ projects</span> completed for clients worldwide
+                <span className="font-medium">
+                  +{portfolio?.projects.length}
+                </span>{" "}
+                completed for clients worldwide
               </motion.div>
             </motion.div>
           </div>
@@ -240,7 +300,11 @@ export function EnhancedHeroSection() {
                 <motion.div
                   initial={{ opacity: 0, y: 30, scale: 0.9 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ delay: 0.7, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{
+                    delay: 0.7,
+                    duration: 0.8,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
                   className="relative h-full w-full overflow-hidden rounded-2xl border-2 border-border bg-background/50 backdrop-blur-sm group"
                   whileHover={{
                     boxShadow: "0 25px 50px rgba(0, 0, 0, 0.2)",
@@ -289,5 +353,5 @@ export function EnhancedHeroSection() {
         </div>
       </motion.div>
     </section>
-  )
+  );
 }
