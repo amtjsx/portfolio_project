@@ -2,7 +2,7 @@ import { Contact } from "./contact";
 import { Education } from "./education";
 import { Experience } from "./experience";
 import { Project } from "./project";
-import { Skill } from "./skills";
+import { Skill, SkillCategory } from "./skills";
 import { Testimonial } from "./testimonials";
 
 export interface Portfolio {
@@ -26,6 +26,7 @@ export interface Portfolio {
     url: string;
     icon: React.ComponentType<{ className?: string }>;
   }[];
+  skillCategories: SkillCategory[];
   experience: Experience[];
   projects: Project[];
   testimonials: Testimonial[];

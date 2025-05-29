@@ -831,7 +831,7 @@ function SkillCard({
 
   const getLevelConfig = (level: string) => {
     switch (level) {
-      case ProficiencyLevel.EXPERT:
+      case "Expert":
         return {
           color: "from-emerald-500 to-teal-600",
           bgColor: "bg-emerald-500/10 border-emerald-500/20",
@@ -839,7 +839,7 @@ function SkillCard({
           glowColor: "shadow-emerald-500/25",
           icon: <Award className="w-3 h-3" />,
         };
-      case ProficiencyLevel.ADVANCED:
+      case "Advanced":
         return {
           color: "from-blue-500 to-indigo-600",
           bgColor: "bg-blue-500/10 border-blue-500/20",
@@ -847,7 +847,7 @@ function SkillCard({
           glowColor: "shadow-blue-500/25",
           icon: <TrendingUp className="w-3 h-3" />,
         };
-      case ProficiencyLevel.INTERMEDIATE:
+      case "Intermediate":
         return {
           color: "from-orange-500 to-amber-600",
           bgColor: "bg-orange-500/10 border-orange-500/20",
@@ -1162,7 +1162,7 @@ export function SkillsSection() {
               className="w-full"
             >
               <div className="flex justify-center mb-12">
-                <TabsList className="relative grid w-full max-w-2xl h-auto grid-cols-3 p-2 rounded-2xl bg-background/50 backdrop-blur-xl border border-border/50">
+                <TabsList className="relative grid w-full max-w-2xl grid-cols-3 p-2 rounded-2xl bg-background/50 backdrop-blur-xl border border-border/50">
                   {portfolio.skillCategories.map((category) => (
                     <TabsTrigger
                       key={category.id}

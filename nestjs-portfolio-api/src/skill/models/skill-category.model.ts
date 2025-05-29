@@ -1,7 +1,17 @@
-import { Table, Column, DataType, ForeignKey, BelongsTo, HasMany, DefaultScope, Scopes } from "sequelize-typescript"
-import { User } from "../../user/models/user.model"
-import { Skill } from "./skill.model"
-import { BaseModel } from "../../common/models/base.model"
+import {
+  Table,
+  Column,
+  DataType,
+  ForeignKey,
+  BelongsTo,
+  HasMany,
+  DefaultScope,
+  Scopes,
+} from "sequelize-typescript";
+import { User } from "../../user/models/user.model";
+import { Skill } from "./skill.model";
+import { BaseModel } from "../../common/models/base.model";
+import { Portfolio } from "src/portfolio/models/portfolio.model";
 
 @DefaultScope(() => ({
   where: {
@@ -30,44 +40,43 @@ export class SkillCategory extends BaseModel<SkillCategory> {
     primaryKey: true,
     defaultValue: DataType.UUIDV4,
   })
-  id: string
+  id: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  name: string
+  name: string;
 
   @Column({
     type: DataType.TEXT,
     allowNull: true,
   })
-  description: string
+  description: string;
 
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
     defaultValue: 0,
   })
-  displayOrder: number
+  displayOrder: number;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: false,
     defaultValue: true,
   })
-  isVisible: boolean
+  isVisible: boolean;
 
-  @ForeignKey(() => User)
+  @ForeignKey(() => Portfolio)
   @Column({
     type: DataType.UUID,
     allowNull: false,
   })
-  userId: string
-
-  @BelongsTo(() => User)
-  user: User
+  userId: string;
+  @BelongsTo(() => Portfolio)
+  portfolio: Portfolio;
 
   @HasMany(() => Skill)
-  skills: Skill[]
+  skills: Skill[];
 }

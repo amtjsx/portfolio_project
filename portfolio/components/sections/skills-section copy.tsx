@@ -36,8 +36,70 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useRef, useState } from "react";
-import { usePortfolio } from "@/app/portfolio";
-import { Achievement, Certificate, ProficiencyLevel } from "@/types/skills";
+
+// Enums matching the Sequelize model
+enum ProficiencyLevel {
+  BEGINNER = "beginner",
+  INTERMEDIATE = "intermediate",
+  ADVANCED = "advanced",
+  EXPERT = "expert",
+}
+
+// Interfaces matching the Sequelize models
+interface SkillCategory {
+  id: string;
+  name: string;
+  description: string;
+  displayOrder: number;
+  isVisible: boolean;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+interface Skill {
+  id: string;
+  name: string;
+  description: string;
+  proficiencyLevel: ProficiencyLevel;
+  yearsOfExperience: number;
+  lastUsedDate: string;
+  icon: string;
+  color: string;
+  isFeatured: boolean;
+  displayOrder: number;
+  endorsementCount: number;
+  metadata: any;
+  userId: string;
+  portfolioId: string | null;
+  categoryId: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+interface Certificate {
+  id: string;
+  name: string;
+  issuer: string;
+  date: string;
+  credentialId?: string;
+  verificationUrl?: string;
+  type: "certification" | "course" | "achievement" | "award";
+  image?: string;
+  description?: string;
+}
+
+interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  type: "project" | "contribution" | "recognition" | "milestone";
+  icon: React.ReactNode;
+  value?: string;
+}
 
 interface SkillCardProps {
   name: string;
@@ -54,421 +116,421 @@ interface SkillCardProps {
 const mockUserId = "550e8400-e29b-41d4-a716-446655440000";
 const mockPortfolioId = "660e8400-e29b-41d4-a716-446655440000";
 
-// const mockSkillCategories: SkillCategory[] = [
-//   {
-//     id: "770e8400-e29b-41d4-a716-446655440001",
-//     name: "Frontend Development",
-//     description:
-//       "Creating beautiful, responsive, and interactive user interfaces with modern frameworks and libraries",
-//     displayOrder: 1,
-//     isVisible: true,
-//     userId: mockUserId,
-//     createdAt: "2023-01-15T10:00:00.000Z",
-//     updatedAt: "2023-05-20T14:30:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "770e8400-e29b-41d4-a716-446655440002",
-//     name: "Backend Development",
-//     description:
-//       "Building scalable and secure server-side applications with robust architectures",
-//     displayOrder: 2,
-//     isVisible: true,
-//     userId: mockUserId,
-//     createdAt: "2023-01-15T10:05:00.000Z",
-//     updatedAt: "2023-05-20T14:35:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "770e8400-e29b-41d4-a716-446655440003",
-//     name: "Tools & Technologies",
-//     description:
-//       "Development tools and technologies that enhance productivity and streamline workflows",
-//     displayOrder: 3,
-//     isVisible: true,
-//     userId: mockUserId,
-//     createdAt: "2023-01-15T10:10:00.000Z",
-//     updatedAt: "2023-05-20T14:40:00.000Z",
-//     deletedAt: null,
-//   },
-// ];
+const mockSkillCategories: SkillCategory[] = [
+  {
+    id: "770e8400-e29b-41d4-a716-446655440001",
+    name: "Frontend Development",
+    description:
+      "Creating beautiful, responsive, and interactive user interfaces with modern frameworks and libraries",
+    displayOrder: 1,
+    isVisible: true,
+    userId: mockUserId,
+    createdAt: "2023-01-15T10:00:00.000Z",
+    updatedAt: "2023-05-20T14:30:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "770e8400-e29b-41d4-a716-446655440002",
+    name: "Backend Development",
+    description:
+      "Building scalable and secure server-side applications with robust architectures",
+    displayOrder: 2,
+    isVisible: true,
+    userId: mockUserId,
+    createdAt: "2023-01-15T10:05:00.000Z",
+    updatedAt: "2023-05-20T14:35:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "770e8400-e29b-41d4-a716-446655440003",
+    name: "Tools & Technologies",
+    description:
+      "Development tools and technologies that enhance productivity and streamline workflows",
+    displayOrder: 3,
+    isVisible: true,
+    userId: mockUserId,
+    createdAt: "2023-01-15T10:10:00.000Z",
+    updatedAt: "2023-05-20T14:40:00.000Z",
+    deletedAt: null,
+  },
+];
 
-// const mockSkills: Skill[] = [
-//   // Frontend Development Skills
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440001",
-//     name: "React",
-//     description:
-//       "Building complex UIs with hooks, context, and modern React patterns",
-//     proficiencyLevel: ProficiencyLevel.EXPERT,
-//     yearsOfExperience: 5.5,
-//     lastUsedDate: "2023-05-28T00:00:00.000Z",
-//     icon: "⚛️",
-//     color: "#61DAFB",
-//     isFeatured: true,
-//     displayOrder: 1,
-//     endorsementCount: 42,
-//     metadata: {
-//       frameworks: ["Next.js", "Gatsby", "Create React App"],
-//       libraries: ["React Router", "React Query", "Zustand"],
-//       projects: 25,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440001",
-//     createdAt: "2023-01-20T09:00:00.000Z",
-//     updatedAt: "2023-05-28T16:20:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440002",
-//     name: "TypeScript",
-//     description:
-//       "Type-safe JavaScript development with advanced type system features",
-//     proficiencyLevel: ProficiencyLevel.EXPERT,
-//     yearsOfExperience: 4.2,
-//     lastUsedDate: "2023-05-28T00:00:00.000Z",
-//     icon: "🔷",
-//     color: "#3178C6",
-//     isFeatured: true,
-//     displayOrder: 2,
-//     endorsementCount: 38,
-//     metadata: {
-//       features: [
-//         "Generics",
-//         "Utility Types",
-//         "Decorators",
-//         "Module Augmentation",
-//       ],
-//       projects: 20,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440001",
-//     createdAt: "2023-01-22T10:30:00.000Z",
-//     updatedAt: "2023-05-28T17:15:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440003",
-//     name: "Next.js",
-//     description: "Full-stack React framework with SSR, SSG, and API routes",
-//     proficiencyLevel: ProficiencyLevel.EXPERT,
-//     yearsOfExperience: 3.8,
-//     lastUsedDate: "2023-05-27T00:00:00.000Z",
-//     icon: "▲",
-//     color: "#000000",
-//     isFeatured: true,
-//     displayOrder: 3,
-//     endorsementCount: 35,
-//     metadata: {
-//       features: [
-//         "App Router",
-//         "Server Components",
-//         "Middleware",
-//         "Edge Runtime",
-//       ],
-//       projects: 18,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440001",
-//     createdAt: "2023-02-01T11:00:00.000Z",
-//     updatedAt: "2023-05-27T18:45:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440004",
-//     name: "Tailwind CSS",
-//     description: "Utility-first CSS framework for rapid UI development",
-//     proficiencyLevel: ProficiencyLevel.EXPERT,
-//     yearsOfExperience: 3.5,
-//     lastUsedDate: "2023-05-28T00:00:00.000Z",
-//     icon: "🎨",
-//     color: "#06B6D4",
-//     isFeatured: true,
-//     displayOrder: 4,
-//     endorsementCount: 30,
-//     metadata: {
-//       features: [
-//         "Custom Design Systems",
-//         "JIT Compilation",
-//         "Plugin Development",
-//       ],
-//       projects: 22,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440001",
-//     createdAt: "2023-02-10T14:20:00.000Z",
-//     updatedAt: "2023-05-28T19:30:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440005",
-//     name: "Vue.js",
-//     description: "Progressive JavaScript framework with composition API",
-//     proficiencyLevel: ProficiencyLevel.INTERMEDIATE,
-//     yearsOfExperience: 2.0,
-//     lastUsedDate: "2023-03-15T00:00:00.000Z",
-//     icon: "💚",
-//     color: "#4FC08D",
-//     isFeatured: false,
-//     displayOrder: 5,
-//     endorsementCount: 18,
-//     metadata: {
-//       features: ["Composition API", "Pinia", "Vue Router"],
-//       projects: 8,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440001",
-//     createdAt: "2023-03-01T09:15:00.000Z",
-//     updatedAt: "2023-03-15T12:00:00.000Z",
-//     deletedAt: null,
-//   },
+const mockSkills: Skill[] = [
+  // Frontend Development Skills
+  {
+    id: "880e8400-e29b-41d4-a716-446655440001",
+    name: "React",
+    description:
+      "Building complex UIs with hooks, context, and modern React patterns",
+    proficiencyLevel: ProficiencyLevel.EXPERT,
+    yearsOfExperience: 5.5,
+    lastUsedDate: "2023-05-28T00:00:00.000Z",
+    icon: "⚛️",
+    color: "#61DAFB",
+    isFeatured: true,
+    displayOrder: 1,
+    endorsementCount: 42,
+    metadata: {
+      frameworks: ["Next.js", "Gatsby", "Create React App"],
+      libraries: ["React Router", "React Query", "Zustand"],
+      projects: 25,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440001",
+    createdAt: "2023-01-20T09:00:00.000Z",
+    updatedAt: "2023-05-28T16:20:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "880e8400-e29b-41d4-a716-446655440002",
+    name: "TypeScript",
+    description:
+      "Type-safe JavaScript development with advanced type system features",
+    proficiencyLevel: ProficiencyLevel.EXPERT,
+    yearsOfExperience: 4.2,
+    lastUsedDate: "2023-05-28T00:00:00.000Z",
+    icon: "🔷",
+    color: "#3178C6",
+    isFeatured: true,
+    displayOrder: 2,
+    endorsementCount: 38,
+    metadata: {
+      features: [
+        "Generics",
+        "Utility Types",
+        "Decorators",
+        "Module Augmentation",
+      ],
+      projects: 20,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440001",
+    createdAt: "2023-01-22T10:30:00.000Z",
+    updatedAt: "2023-05-28T17:15:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "880e8400-e29b-41d4-a716-446655440003",
+    name: "Next.js",
+    description: "Full-stack React framework with SSR, SSG, and API routes",
+    proficiencyLevel: ProficiencyLevel.EXPERT,
+    yearsOfExperience: 3.8,
+    lastUsedDate: "2023-05-27T00:00:00.000Z",
+    icon: "▲",
+    color: "#000000",
+    isFeatured: true,
+    displayOrder: 3,
+    endorsementCount: 35,
+    metadata: {
+      features: [
+        "App Router",
+        "Server Components",
+        "Middleware",
+        "Edge Runtime",
+      ],
+      projects: 18,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440001",
+    createdAt: "2023-02-01T11:00:00.000Z",
+    updatedAt: "2023-05-27T18:45:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "880e8400-e29b-41d4-a716-446655440004",
+    name: "Tailwind CSS",
+    description: "Utility-first CSS framework for rapid UI development",
+    proficiencyLevel: ProficiencyLevel.EXPERT,
+    yearsOfExperience: 3.5,
+    lastUsedDate: "2023-05-28T00:00:00.000Z",
+    icon: "🎨",
+    color: "#06B6D4",
+    isFeatured: true,
+    displayOrder: 4,
+    endorsementCount: 30,
+    metadata: {
+      features: [
+        "Custom Design Systems",
+        "JIT Compilation",
+        "Plugin Development",
+      ],
+      projects: 22,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440001",
+    createdAt: "2023-02-10T14:20:00.000Z",
+    updatedAt: "2023-05-28T19:30:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "880e8400-e29b-41d4-a716-446655440005",
+    name: "Vue.js",
+    description: "Progressive JavaScript framework with composition API",
+    proficiencyLevel: ProficiencyLevel.INTERMEDIATE,
+    yearsOfExperience: 2.0,
+    lastUsedDate: "2023-03-15T00:00:00.000Z",
+    icon: "💚",
+    color: "#4FC08D",
+    isFeatured: false,
+    displayOrder: 5,
+    endorsementCount: 18,
+    metadata: {
+      features: ["Composition API", "Pinia", "Vue Router"],
+      projects: 8,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440001",
+    createdAt: "2023-03-01T09:15:00.000Z",
+    updatedAt: "2023-03-15T12:00:00.000Z",
+    deletedAt: null,
+  },
 
-//   // Backend Development Skills
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440006",
-//     name: "Node.js",
-//     description: "Server-side JavaScript runtime for scalable applications",
-//     proficiencyLevel: ProficiencyLevel.EXPERT,
-//     yearsOfExperience: 6.0,
-//     lastUsedDate: "2023-05-28T00:00:00.000Z",
-//     icon: "🟢",
-//     color: "#339933",
-//     isFeatured: true,
-//     displayOrder: 1,
-//     endorsementCount: 40,
-//     metadata: {
-//       features: ["Express.js", "Fastify", "Worker Threads", "Streams"],
-//       projects: 20,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440002",
-//     createdAt: "2023-01-18T08:30:00.000Z",
-//     updatedAt: "2023-05-28T20:15:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440007",
-//     name: "PostgreSQL",
-//     description:
-//       "Advanced relational database with complex queries and optimization",
-//     proficiencyLevel: ProficiencyLevel.ADVANCED,
-//     yearsOfExperience: 4.0,
-//     lastUsedDate: "2023-05-25T00:00:00.000Z",
-//     icon: "🐘",
-//     color: "#336791",
-//     isFeatured: true,
-//     displayOrder: 2,
-//     endorsementCount: 30,
-//     metadata: {
-//       features: [
-//         "Complex Queries",
-//         "Indexing",
-//         "Stored Procedures",
-//         "JSON Operations",
-//       ],
-//       projects: 15,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440002",
-//     createdAt: "2023-01-25T13:45:00.000Z",
-//     updatedAt: "2023-05-25T15:30:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440008",
-//     name: "MongoDB",
-//     description: "NoSQL document database for flexible data modeling",
-//     proficiencyLevel: ProficiencyLevel.ADVANCED,
-//     yearsOfExperience: 3.5,
-//     lastUsedDate: "2023-05-20T00:00:00.000Z",
-//     icon: "🍃",
-//     color: "#47A248",
-//     isFeatured: false,
-//     displayOrder: 3,
-//     endorsementCount: 28,
-//     metadata: {
-//       features: ["Aggregation Pipeline", "Sharding", "Replica Sets", "GridFS"],
-//       projects: 12,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440002",
-//     createdAt: "2023-02-05T16:20:00.000Z",
-//     updatedAt: "2023-05-20T11:45:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440009",
-//     name: "GraphQL",
-//     description: "Query language for APIs with type-safe schema design",
-//     proficiencyLevel: ProficiencyLevel.ADVANCED,
-//     yearsOfExperience: 3.0,
-//     lastUsedDate: "2023-05-22T00:00:00.000Z",
-//     icon: "🔗",
-//     color: "#E10098",
-//     isFeatured: false,
-//     displayOrder: 4,
-//     endorsementCount: 25,
-//     metadata: {
-//       features: ["Schema Design", "Resolvers", "Subscriptions", "Federation"],
-//       projects: 10,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440002",
-//     createdAt: "2023-02-15T10:10:00.000Z",
-//     updatedAt: "2023-05-22T14:20:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440010",
-//     name: "Python",
-//     description:
-//       "Versatile programming language for web development and automation",
-//     proficiencyLevel: ProficiencyLevel.INTERMEDIATE,
-//     yearsOfExperience: 2.5,
-//     lastUsedDate: "2023-04-10T00:00:00.000Z",
-//     icon: "🐍",
-//     color: "#3776AB",
-//     isFeatured: false,
-//     displayOrder: 5,
-//     endorsementCount: 18,
-//     metadata: {
-//       frameworks: ["Django", "FastAPI", "Flask"],
-//       projects: 6,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440002",
-//     createdAt: "2023-03-10T12:30:00.000Z",
-//     updatedAt: "2023-04-10T16:45:00.000Z",
-//     deletedAt: null,
-//   },
+  // Backend Development Skills
+  {
+    id: "880e8400-e29b-41d4-a716-446655440006",
+    name: "Node.js",
+    description: "Server-side JavaScript runtime for scalable applications",
+    proficiencyLevel: ProficiencyLevel.EXPERT,
+    yearsOfExperience: 6.0,
+    lastUsedDate: "2023-05-28T00:00:00.000Z",
+    icon: "🟢",
+    color: "#339933",
+    isFeatured: true,
+    displayOrder: 1,
+    endorsementCount: 40,
+    metadata: {
+      features: ["Express.js", "Fastify", "Worker Threads", "Streams"],
+      projects: 20,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440002",
+    createdAt: "2023-01-18T08:30:00.000Z",
+    updatedAt: "2023-05-28T20:15:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "880e8400-e29b-41d4-a716-446655440007",
+    name: "PostgreSQL",
+    description:
+      "Advanced relational database with complex queries and optimization",
+    proficiencyLevel: ProficiencyLevel.ADVANCED,
+    yearsOfExperience: 4.0,
+    lastUsedDate: "2023-05-25T00:00:00.000Z",
+    icon: "🐘",
+    color: "#336791",
+    isFeatured: true,
+    displayOrder: 2,
+    endorsementCount: 30,
+    metadata: {
+      features: [
+        "Complex Queries",
+        "Indexing",
+        "Stored Procedures",
+        "JSON Operations",
+      ],
+      projects: 15,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440002",
+    createdAt: "2023-01-25T13:45:00.000Z",
+    updatedAt: "2023-05-25T15:30:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "880e8400-e29b-41d4-a716-446655440008",
+    name: "MongoDB",
+    description: "NoSQL document database for flexible data modeling",
+    proficiencyLevel: ProficiencyLevel.ADVANCED,
+    yearsOfExperience: 3.5,
+    lastUsedDate: "2023-05-20T00:00:00.000Z",
+    icon: "🍃",
+    color: "#47A248",
+    isFeatured: false,
+    displayOrder: 3,
+    endorsementCount: 28,
+    metadata: {
+      features: ["Aggregation Pipeline", "Sharding", "Replica Sets", "GridFS"],
+      projects: 12,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440002",
+    createdAt: "2023-02-05T16:20:00.000Z",
+    updatedAt: "2023-05-20T11:45:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "880e8400-e29b-41d4-a716-446655440009",
+    name: "GraphQL",
+    description: "Query language for APIs with type-safe schema design",
+    proficiencyLevel: ProficiencyLevel.ADVANCED,
+    yearsOfExperience: 3.0,
+    lastUsedDate: "2023-05-22T00:00:00.000Z",
+    icon: "🔗",
+    color: "#E10098",
+    isFeatured: false,
+    displayOrder: 4,
+    endorsementCount: 25,
+    metadata: {
+      features: ["Schema Design", "Resolvers", "Subscriptions", "Federation"],
+      projects: 10,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440002",
+    createdAt: "2023-02-15T10:10:00.000Z",
+    updatedAt: "2023-05-22T14:20:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "880e8400-e29b-41d4-a716-446655440010",
+    name: "Python",
+    description:
+      "Versatile programming language for web development and automation",
+    proficiencyLevel: ProficiencyLevel.INTERMEDIATE,
+    yearsOfExperience: 2.5,
+    lastUsedDate: "2023-04-10T00:00:00.000Z",
+    icon: "🐍",
+    color: "#3776AB",
+    isFeatured: false,
+    displayOrder: 5,
+    endorsementCount: 18,
+    metadata: {
+      frameworks: ["Django", "FastAPI", "Flask"],
+      projects: 6,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440002",
+    createdAt: "2023-03-10T12:30:00.000Z",
+    updatedAt: "2023-04-10T16:45:00.000Z",
+    deletedAt: null,
+  },
 
-//   // Tools & Technologies Skills
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440011",
-//     name: "Git",
-//     description: "Version control system for collaborative development",
-//     proficiencyLevel: ProficiencyLevel.EXPERT,
-//     yearsOfExperience: 7.0,
-//     lastUsedDate: "2023-05-28T00:00:00.000Z",
-//     icon: "📚",
-//     color: "#F05032",
-//     isFeatured: true,
-//     displayOrder: 1,
-//     endorsementCount: 45,
-//     metadata: {
-//       features: ["Advanced Branching", "Rebasing", "Hooks", "Submodules"],
-//       repositories: 50,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440003",
-//     createdAt: "2023-01-16T07:00:00.000Z",
-//     updatedAt: "2023-05-28T21:00:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440012",
-//     name: "Docker",
-//     description: "Containerization platform for consistent deployments",
-//     proficiencyLevel: ProficiencyLevel.ADVANCED,
-//     yearsOfExperience: 3.2,
-//     lastUsedDate: "2023-05-26T00:00:00.000Z",
-//     icon: "🐳",
-//     color: "#2496ED",
-//     isFeatured: true,
-//     displayOrder: 2,
-//     endorsementCount: 28,
-//     metadata: {
-//       features: ["Multi-stage Builds", "Docker Compose", "Swarm", "Registry"],
-//       projects: 14,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440003",
-//     createdAt: "2023-02-20T15:30:00.000Z",
-//     updatedAt: "2023-05-26T13:15:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440013",
-//     name: "AWS",
-//     description: "Cloud computing platform for scalable infrastructure",
-//     proficiencyLevel: ProficiencyLevel.ADVANCED,
-//     yearsOfExperience: 4.0,
-//     lastUsedDate: "2023-05-24T00:00:00.000Z",
-//     icon: "☁️",
-//     color: "#FF9900",
-//     isFeatured: true,
-//     displayOrder: 3,
-//     endorsementCount: 30,
-//     metadata: {
-//       services: ["EC2", "S3", "Lambda", "RDS", "CloudFormation"],
-//       projects: 12,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440003",
-//     createdAt: "2023-01-30T11:20:00.000Z",
-//     updatedAt: "2023-05-24T17:40:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440014",
-//     name: "Jest",
-//     description: "JavaScript testing framework with snapshot testing",
-//     proficiencyLevel: ProficiencyLevel.ADVANCED,
-//     yearsOfExperience: 3.5,
-//     lastUsedDate: "2023-05-23T00:00:00.000Z",
-//     icon: "🧪",
-//     color: "#C21325",
-//     isFeatured: false,
-//     displayOrder: 4,
-//     endorsementCount: 25,
-//     metadata: {
-//       features: ["Unit Testing", "Integration Testing", "Mocking", "Coverage"],
-//       projects: 15,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440003",
-//     createdAt: "2023-02-25T09:45:00.000Z",
-//     updatedAt: "2023-05-23T14:30:00.000Z",
-//     deletedAt: null,
-//   },
-//   {
-//     id: "880e8400-e29b-41d4-a716-446655440015",
-//     name: "Figma",
-//     description: "UI/UX design tool for collaborative design workflows",
-//     proficiencyLevel: ProficiencyLevel.INTERMEDIATE,
-//     yearsOfExperience: 2.8,
-//     lastUsedDate: "2023-05-21T00:00:00.000Z",
-//     icon: "🎨",
-//     color: "#F24E1E",
-//     isFeatured: false,
-//     displayOrder: 5,
-//     endorsementCount: 22,
-//     metadata: {
-//       features: ["Design Systems", "Prototyping", "Auto Layout", "Components"],
-//       projects: 18,
-//     },
-//     userId: mockUserId,
-//     portfolioId: mockPortfolioId,
-//     categoryId: "770e8400-e29b-41d4-a716-446655440003",
-//     createdAt: "2023-03-05T13:15:00.000Z",
-//     updatedAt: "2023-05-21T10:20:00.000Z",
-//     deletedAt: null,
-//   },
-// ];
+  // Tools & Technologies Skills
+  {
+    id: "880e8400-e29b-41d4-a716-446655440011",
+    name: "Git",
+    description: "Version control system for collaborative development",
+    proficiencyLevel: ProficiencyLevel.EXPERT,
+    yearsOfExperience: 7.0,
+    lastUsedDate: "2023-05-28T00:00:00.000Z",
+    icon: "📚",
+    color: "#F05032",
+    isFeatured: true,
+    displayOrder: 1,
+    endorsementCount: 45,
+    metadata: {
+      features: ["Advanced Branching", "Rebasing", "Hooks", "Submodules"],
+      repositories: 50,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440003",
+    createdAt: "2023-01-16T07:00:00.000Z",
+    updatedAt: "2023-05-28T21:00:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "880e8400-e29b-41d4-a716-446655440012",
+    name: "Docker",
+    description: "Containerization platform for consistent deployments",
+    proficiencyLevel: ProficiencyLevel.ADVANCED,
+    yearsOfExperience: 3.2,
+    lastUsedDate: "2023-05-26T00:00:00.000Z",
+    icon: "🐳",
+    color: "#2496ED",
+    isFeatured: true,
+    displayOrder: 2,
+    endorsementCount: 28,
+    metadata: {
+      features: ["Multi-stage Builds", "Docker Compose", "Swarm", "Registry"],
+      projects: 14,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440003",
+    createdAt: "2023-02-20T15:30:00.000Z",
+    updatedAt: "2023-05-26T13:15:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "880e8400-e29b-41d4-a716-446655440013",
+    name: "AWS",
+    description: "Cloud computing platform for scalable infrastructure",
+    proficiencyLevel: ProficiencyLevel.ADVANCED,
+    yearsOfExperience: 4.0,
+    lastUsedDate: "2023-05-24T00:00:00.000Z",
+    icon: "☁️",
+    color: "#FF9900",
+    isFeatured: true,
+    displayOrder: 3,
+    endorsementCount: 30,
+    metadata: {
+      services: ["EC2", "S3", "Lambda", "RDS", "CloudFormation"],
+      projects: 12,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440003",
+    createdAt: "2023-01-30T11:20:00.000Z",
+    updatedAt: "2023-05-24T17:40:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "880e8400-e29b-41d4-a716-446655440014",
+    name: "Jest",
+    description: "JavaScript testing framework with snapshot testing",
+    proficiencyLevel: ProficiencyLevel.ADVANCED,
+    yearsOfExperience: 3.5,
+    lastUsedDate: "2023-05-23T00:00:00.000Z",
+    icon: "🧪",
+    color: "#C21325",
+    isFeatured: false,
+    displayOrder: 4,
+    endorsementCount: 25,
+    metadata: {
+      features: ["Unit Testing", "Integration Testing", "Mocking", "Coverage"],
+      projects: 15,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440003",
+    createdAt: "2023-02-25T09:45:00.000Z",
+    updatedAt: "2023-05-23T14:30:00.000Z",
+    deletedAt: null,
+  },
+  {
+    id: "880e8400-e29b-41d4-a716-446655440015",
+    name: "Figma",
+    description: "UI/UX design tool for collaborative design workflows",
+    proficiencyLevel: ProficiencyLevel.INTERMEDIATE,
+    yearsOfExperience: 2.8,
+    lastUsedDate: "2023-05-21T00:00:00.000Z",
+    icon: "🎨",
+    color: "#F24E1E",
+    isFeatured: false,
+    displayOrder: 5,
+    endorsementCount: 22,
+    metadata: {
+      features: ["Design Systems", "Prototyping", "Auto Layout", "Components"],
+      projects: 18,
+    },
+    userId: mockUserId,
+    portfolioId: mockPortfolioId,
+    categoryId: "770e8400-e29b-41d4-a716-446655440003",
+    createdAt: "2023-03-05T13:15:00.000Z",
+    updatedAt: "2023-05-21T10:20:00.000Z",
+    deletedAt: null,
+  },
+];
 
 // Helper functions to transform data
 function mapProficiencyToLevel(
@@ -831,7 +893,7 @@ function SkillCard({
 
   const getLevelConfig = (level: string) => {
     switch (level) {
-      case ProficiencyLevel.EXPERT:
+      case "Expert":
         return {
           color: "from-emerald-500 to-teal-600",
           bgColor: "bg-emerald-500/10 border-emerald-500/20",
@@ -839,7 +901,7 @@ function SkillCard({
           glowColor: "shadow-emerald-500/25",
           icon: <Award className="w-3 h-3" />,
         };
-      case ProficiencyLevel.ADVANCED:
+      case "Advanced":
         return {
           color: "from-blue-500 to-indigo-600",
           bgColor: "bg-blue-500/10 border-blue-500/20",
@@ -847,7 +909,7 @@ function SkillCard({
           glowColor: "shadow-blue-500/25",
           icon: <TrendingUp className="w-3 h-3" />,
         };
-      case ProficiencyLevel.INTERMEDIATE:
+      case "Intermediate":
         return {
           color: "from-orange-500 to-amber-600",
           bgColor: "bg-orange-500/10 border-orange-500/20",
@@ -1113,10 +1175,7 @@ function CategoryHeader({
 }
 
 export function SkillsSection() {
-  const { portfolio } = usePortfolio();
-  const [activeTab, setActiveTab] = useState(
-    portfolio?.skillCategories?.[0]?.id
-  );
+  const [activeTab, setActiveTab] = useState("frontend");
 
   return (
     <section id="skills" className="py-20 md:py-32 relative overflow-hidden">
@@ -1162,8 +1221,8 @@ export function SkillsSection() {
               className="w-full"
             >
               <div className="flex justify-center mb-12">
-                <TabsList className="relative grid w-full max-w-2xl h-auto grid-cols-3 p-2 rounded-2xl bg-background/50 backdrop-blur-xl border border-border/50">
-                  {portfolio.skillCategories.map((category) => (
+                <TabsList className="relative grid w-full max-w-2xl grid-cols-3 p-2 rounded-2xl bg-background/50 backdrop-blur-xl border border-border/50">
+                  {mockSkillCategories.map((category) => (
                     <TabsTrigger
                       key={category.id}
                       value={category.name}
@@ -1196,8 +1255,8 @@ export function SkillsSection() {
                 </TabsList>
               </div>
 
-              {portfolio.skillCategories.map((category) => {
-                const skills = portfolio.skills.filter(
+              {mockSkillCategories.map((category) => {
+                const skills = mockSkills.filter(
                   (skill) => skill.categoryId === category.id
                 );
                 return (

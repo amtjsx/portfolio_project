@@ -22,6 +22,7 @@ import { Op } from "../../common/models/sequelize-imports";
 import { Project } from "../../projects/models/project.model";
 import { Social } from "../../social/models/social.model";
 import { User } from "../../user/models/user.model";
+import { SkillCategory } from "src/skill/models/skill-category.model";
 
 @DefaultScope(() => ({
   where: {
@@ -348,4 +349,7 @@ export class Portfolio extends BaseModel<Portfolio> {
 
   @HasMany(() => Skill)
   skills: Skill[];
+
+  @HasMany(() => SkillCategory)
+  skillCategories: SkillCategory[];
 }

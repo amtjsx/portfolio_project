@@ -9,6 +9,7 @@ import { User } from "../user/models/user.model";
 import { CreatePortfolioDto } from "./dto/create-portfolio.dto";
 import { UpdatePortfolioDto } from "./dto/update-portfolio.dto";
 import { Portfolio } from "./models/portfolio.model";
+import { SkillCategory } from "src/skill/models/skill-category.model";
 
 @Injectable()
 export class PortfolioService {
@@ -29,16 +30,7 @@ export class PortfolioService {
     });
 
     if (!portfolio) {
-      return {
-        name: "John Doe",
-        title: "Full Stack Developer",
-        bio: "Passionate developer with expertise in modern web technologies.",
-        location: "New York, USA",
-        email: "john@example.com",
-        linkedin: "https://linkedin.com/in/johndoe",
-        github: "https://github.com/johndoe",
-        website: "https://johndoe.com",
-      };
+      throw new NotFoundException("Portfolio not found");
     }
 
     return {
@@ -166,6 +158,7 @@ export class PortfolioService {
         { model: Education, as: "educations", required: false },
         { model: Experience, as: "experiences", required: false },
         { model: Skill, as: "skills", required: false },
+        { model: SkillCategory, as: "skillCategories", required: false },
         {
           model: Social,
           as: "socialLinks",
