@@ -64,19 +64,6 @@ module.exports = {
         allowNull: false,
         defaultValue: false,
       },
-      start_date: {
-        type: Sequelize.DATEONLY,
-        allowNull: true,
-      },
-      end_date: {
-        type: Sequelize.DATEONLY,
-        allowNull: true,
-      },
-      status: {
-        type: Sequelize.ENUM("completed", "in-progress", "planned"),
-        allowNull: false,
-        defaultValue: "planned",
-      },
       created_at: {
         allowNull: false,
         type: Sequelize.DATE,

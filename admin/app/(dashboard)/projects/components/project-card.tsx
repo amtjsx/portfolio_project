@@ -1,34 +1,21 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { CalendarIcon, ExternalLink, Github, Star } from "lucide-react";
-import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { Project } from "@/types/project";
+import { CalendarIcon, Edit, ExternalLink, Github, Star } from "lucide-react";
+import Link from "next/link";
+import { useCreateProjectStore } from "../create/use-create-project-store";
 
 interface ProjectCardProps {
   project: Project;
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "bg-green-100 text-green-800 border-green-200";
-      case "in-progress":
-        return "bg-blue-100 text-blue-800 border-blue-200";
-      case "planned":
-        return "bg-gray-100 text-gray-800 border-gray-200";
-      default:
-        return "bg-gray-100 text-gray-800 border-gray-200";
-    }
-  };
-
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -42,13 +29,18 @@ export function ProjectCard({ project }: ProjectCardProps) {
     return `${start} - ${end}`;
   };
 
+  const setOpen = useCreateProjectStore((state) => state.setOpen);
+  const setDefaultValue = useCreateProjectStore(
+    (state) => state.setDefaultValue
+  );
+
   return (
     <Card className="group hover:shadow-lg transition-all duration-200 overflow-hidden">
       {/* Project Image */}
       <div className="relative h-48 bg-muted overflow-hidden">
         {project.imageUrl ? (
           <img
-            src={project.imageUrl || "/placeholder.svg"}
+            src={`${process.env.NEXT_PUBLIC_API_URL}/images/file/${project.imageUrl}`}
             alt={project.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
           />
@@ -59,18 +51,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </div>
           </div>
         )}
-
-        {/* Status Badge */}
-        <div className="absolute top-3 left-3">
-          <Badge
-            className={cn(
-              "text-xs font-medium",
-              getStatusColor(project.status)
-            )}
-          >
-            {project.status.replace("-", " ")}
-          </Badge>
-        </div>
 
         {/* Featured Badge */}
         {project.featured && (
@@ -96,6 +76,17 @@ export function ProjectCard({ project }: ProjectCardProps) {
               {project.category}
             </Badge>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="opacity-0 group-hover:opacity-100 transition-opacity rounded-full hover:text-primary z-10"
+            onClick={() => {
+              setOpen(true);
+              setDefaultValue(project);
+            }}
+          >
+            <Edit className="h-4 w-4" />
+          </Button>
         </div>
       </CardHeader>
 

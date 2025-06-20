@@ -1,31 +1,41 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import Image from "next/image"
-import { Briefcase, ArrowRight, ExternalLink } from "lucide-react"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { usePortfolio } from "@/app/portfolio";
 import {
-  AnimatedSection,
-  AnimatedTitle,
-  AnimatedText,
   AnimatedList,
+  AnimatedSection,
+  AnimatedText,
+  AnimatedTitle,
   FadeInWhenVisible,
-} from "@/components/animated-section"
+} from "@/components/animated-section";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import { ArrowRight, Briefcase, ExternalLink } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 
 interface ProjectCardProps {
-  title: string
-  description: string
-  image: string
-  tags: string[]
-  link: string
+  title: string;
+  description: string;
+  image: string;
+  tags: string[];
+  link: string;
 }
 
-function ProjectCard({ title, description, image, tags, link }: ProjectCardProps) {
+function ProjectCard({
+  title,
+  description,
+  image,
+  tags,
+  link,
+}: ProjectCardProps) {
   return (
-    <motion.div whileHover={{ y: -10 }} transition={{ type: "spring", stiffness: 400, damping: 17 }}>
+    <motion.div
+      whileHover={{ y: -10 }}
+      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+    >
       <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg h-full bg-card/50 backdrop-blur-sm border-border">
         <div className="aspect-video relative overflow-hidden">
           <Image
@@ -54,7 +64,11 @@ function ProjectCard({ title, description, image, tags, link }: ProjectCardProps
             <p className="text-sm text-muted-foreground">{description}</p>
             <div className="flex flex-wrap gap-2 pt-2">
               {tags.map((tag) => (
-                <Badge key={tag} variant="secondary" className="text-xs font-normal">
+                <Badge
+                  key={tag}
+                  variant="secondary"
+                  className="text-xs font-normal"
+                >
                   {tag}
                 </Badge>
               ))}
@@ -63,59 +77,11 @@ function ProjectCard({ title, description, image, tags, link }: ProjectCardProps
         </CardContent>
       </Card>
     </motion.div>
-  )
+  );
 }
 
 export function ProjectsSection() {
-  const projects = [
-    {
-      title: "E-commerce Platform",
-      description:
-        "A full-featured online store with product management, cart functionality, and secure payment processing.",
-      image: "/modern-ecommerce-website.png",
-      tags: ["Next.js", "React", "Stripe", "Tailwind CSS"],
-      link: "https://example.com",
-    },
-    {
-      title: "Task Management App",
-      description:
-        "A productivity application for teams with real-time updates, task assignment, and progress tracking.",
-      image: "/task-management-app-interface.png",
-      tags: ["React", "Firebase", "Material UI"],
-      link: "https://example.com",
-    },
-    {
-      title: "Portfolio Website",
-      description: "A responsive portfolio website with animations and a custom CMS for easy content updates.",
-      image: "/portfolio-website-showcase.png",
-      tags: ["Next.js", "Tailwind CSS", "Framer Motion"],
-      link: "https://example.com",
-    },
-    {
-      title: "Health & Fitness App",
-      description:
-        "A mobile-first application for tracking workouts, nutrition, and health metrics with personalized recommendations.",
-      image: "/fitness-app.png",
-      tags: ["React Native", "Node.js", "MongoDB"],
-      link: "https://example.com",
-    },
-    {
-      title: "Real Estate Platform",
-      description:
-        "A property listing and management system with advanced search, virtual tours, and agent dashboards.",
-      image: "/real-estate-platform.png",
-      tags: ["Vue.js", "Express", "PostgreSQL"],
-      link: "https://example.com",
-    },
-    {
-      title: "AI Content Generator",
-      description: "An AI-powered tool that helps create marketing content, blog posts, and social media updates.",
-      image: "/ai-content-generator.png",
-      tags: ["Python", "TensorFlow", "React"],
-      link: "https://example.com",
-    },
-  ]
-
+  const { portfolio } = usePortfolio();
   return (
     <section id="projects" className="py-20 md:py-32 relative">
       <div className="container px-4 md:px-6">
@@ -131,27 +97,41 @@ export function ProjectsSection() {
               <div className="mt-4 h-1 w-16 rounded bg-primary"></div>
             </FadeInWhenVisible>
             <AnimatedText delay={0.3}>
-              Here's a selection of my recent work. Each project presented unique challenges and opportunities for
-              growth.
+              Here's a selection of my recent work. Each project presented
+              unique challenges and opportunities for growth.
             </AnimatedText>
           </div>
 
           <AnimatedList staggerDelay={0.1}>
-            {projects.map((project, index) => (
+            {portfolio.projects.map((project, index) => (
               <ProjectCard
                 key={index}
                 title={project.title}
                 description={project.description}
-                image={project.image}
-                tags={project.tags}
-                link={project.link}
+                image={
+                  project.imageId
+                    ? `${process.env.NEXT_PUBLIC_API_URL}/images/file/${project.imageId}`
+                    : ""
+                }
+                tags={project.technologies}
+                link={project.liveUrl || project.githubUrl || ""}
               />
             ))}
           </AnimatedList>
 
           <AnimatedSection delay={0.6} className="mt-12 flex justify-center">
-            <Button asChild variant="outline" size="lg" className="bg-background/50 backdrop-blur-sm">
-              <Link href="https://github.com" target="_blank" rel="noreferrer" className="group">
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="bg-background/50 backdrop-blur-sm"
+            >
+              <Link
+                href="https://github.com"
+                target="_blank"
+                rel="noreferrer"
+                className="group"
+              >
                 View All Projects on GitHub
                 <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Link>
@@ -160,5 +140,5 @@ export function ProjectsSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

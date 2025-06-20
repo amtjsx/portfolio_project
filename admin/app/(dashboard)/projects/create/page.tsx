@@ -1,9 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
 import {
-  CalendarIcon,
   Code,
   Eye,
   Github,
@@ -21,7 +19,6 @@ import { useForm } from "react-hook-form";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
   CardContent,
@@ -40,68 +37,40 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
+import { SheetFooter } from "@/components/ui/sheet";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreate } from "@/hooks/use-create";
-import { cn } from "@/lib/utils";
 import { Project } from "@/types/project";
 import { z } from "zod";
+import { EditProfilePhotoDialog } from "../../profile/edit/edit-profile-photo-dialog";
 
-const projectFormSchema = z
-  .object({
-    title: z
-      .string()
-      .min(1, "Project title is required")
-      .max(100, "Title must be less than 100 characters"),
-    description: z
-      .string()
-      .min(1, "Description is required")
-      .max(200, "Description must be less than 200 characters"),
-    longDescription: z.string().optional(),
-    technologies: z
-      .array(z.string())
-      .min(1, "At least one technology is required"),
-    category: z.string().min(1, "Category is required"),
-    githubUrl: z
-      .string()
-      .url("Invalid GitHub URL")
-      .optional()
-      .or(z.literal("")),
-    liveUrl: z
-      .string()
-      .url("Invalid live demo URL")
-      .optional()
-      .or(z.literal("")),
-    imageUrl: z.string().url("Invalid image URL").optional().or(z.literal("")),
-    featured: z.boolean().default(false),
-    startDate: z.date().optional().nullable(),
-    endDate: z.date().optional().nullable(),
-    status: z.enum(["completed", "in-progress", "planned"]).default("planned"),
-  })
-  .refine(
-    (data) => {
-      if (data.endDate && data.startDate) {
-        return data.endDate >= data.startDate;
-      }
-      return true;
-    },
-    {
-      message: "End date must be after start date",
-      path: ["endDate"],
-    }
-  );
+const projectFormSchema = z.object({
+  imageUrl: z.string(),
+  title: z
+    .string()
+    .min(1, "Project title is required")
+    .max(100, "Title must be less than 100 characters"),
+  description: z
+    .string()
+    .min(1, "Description is required")
+    .max(200, "Description must be less than 200 characters"),
+  longDescription: z.string().optional(),
+  technologies: z
+    .array(z.string())
+    .min(1, "At least one technology is required"),
+  category: z.string().min(1, "Category is required"),
+  githubUrl: z.string().url("Invalid GitHub URL").optional().or(z.literal("")),
+  liveUrl: z.string().url("Invalid live demo URL").optional().or(z.literal("")),
+  featured: z.boolean().default(false),
+  status: z.enum(["completed", "in-progress", "planned"]).default("planned"),
+});
 
 export type ProjectFormValues = z.infer<typeof projectFormSchema>;
 
@@ -214,8 +183,6 @@ export function CreateProjectForm({
   const onSubmit = async (data: ProjectFormValues) => {
     const projectData = {
       ...data,
-      startDate: data.startDate ? format(data.startDate, "yyyy-MM-dd") : null,
-      endDate: data.endDate ? format(data.endDate, "yyyy-MM-dd") : null,
       githubUrl: data.githubUrl || undefined,
       liveUrl: data.liveUrl || undefined,
       imageUrl: data.imageUrl || undefined,
@@ -225,471 +192,349 @@ export function CreateProjectForm({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      {/* Main Form */}
-      <div className="lg:col-span-2">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            {/* Basic Information */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Basic Information</CardTitle>
-                <CardDescription>
-                  Core details about your project
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="title"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Project Title <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="E-commerce Platform" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="category"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Category <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select category" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {projectCategories.map((category) => (
-                              <SelectItem
-                                key={category}
-                                value={category}
-                                className="capitalize"
-                              >
-                                {category}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>
-                        Short Description{" "}
-                        <span className="text-red-500">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="A brief description of your project (1-2 sentences)"
-                          rows={2}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        {field.value?.length || 0}/200 characters
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="longDescription"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Detailed Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder="Provide a comprehensive description of your project, including features, challenges, and technical details..."
-                          rows={6}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        {field.value?.length || 0} characters
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            {/* Technical Details */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Code className="h-5 w-5 text-green-600" />
-                  Technical Details
-                </CardTitle>
-                <CardDescription>
-                  Technologies used and project timeline
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="technologies"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Technologies Used</FormLabel>
-                      <div className="space-y-4">
-                        <div className="flex gap-2">
-                          <Input
-                            placeholder="Add technology (e.g., React, Node.js)"
-                            value={newTechnology}
-                            onChange={(e) => setNewTechnology(e.target.value)}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault();
-                                addTechnology(newTechnology);
-                              }
-                            }}
-                          />
-                          <Button
-                            type="button"
-                            onClick={() => addTechnology(newTechnology)}
-                            variant="outline"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-
-                        {field.value.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {field.value.map((tech, index) => (
-                              <Badge
-                                key={index}
-                                variant="secondary"
-                                className="flex items-center gap-1"
-                              >
-                                {tech}
-                                <X
-                                  className="h-3 w-3 cursor-pointer hover:text-red-500"
-                                  onClick={() => removeTechnology(tech)}
-                                />
-                              </Badge>
-                            ))}
-                          </div>
-                        )}
-
-                        <div className="space-y-3">
-                          <p className="text-sm text-gray-600">
-                            Quick add popular technologies:
-                          </p>
-                          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                            {commonTechnologies.slice(0, 16).map((tech) => (
-                              <Button
-                                key={tech}
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => addTechnology(tech)}
-                                disabled={field.value.includes(tech)}
-                                className="text-xs justify-start"
-                              >
-                                {tech}
-                              </Button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <Separator />
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="startDate"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>
-                          Start Date <span className="text-red-500">*</span>
-                        </FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value
-                                  ? format(field.value, "PPP")
-                                  : "Pick a date"}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value || undefined}
-                              onSelect={field.onChange}
-                              disabled={(date) =>
-                                date > new Date() ||
-                                date < new Date("1900-01-01")
-                              }
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="endDate"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                        <FormLabel>End Date</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant="outline"
-                                className={cn(
-                                  "w-full pl-3 text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                                )}
-                              >
-                                {field.value
-                                  ? format(field.value, "PPP")
-                                  : "Pick a date (optional)"}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={field.value || undefined}
-                              onSelect={field.onChange}
-                              disabled={(date) => {
-                                const startDate = form.getValues("startDate");
-                                return startDate ? date < startDate : false;
-                              }}
-                              initialFocus
-                            />
-                          </PopoverContent>
-                        </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="status"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Project Status</FormLabel>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="planned">Planned</SelectItem>
-                            <SelectItem value="in-progress">
-                              In Progress
-                            </SelectItem>
-                            <SelectItem value="completed">Completed</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Media & Links */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ImageIcon className="h-5 w-5 text-purple-600" />
-                  Media & Links
-                </CardTitle>
-                <CardDescription>
-                  Project images and external links
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Project Image URL</FormLabel>
-                      <div className="flex gap-2">
-                        <FormControl>
-                          <Input
-                            placeholder="https://example.com/project-image.jpg"
-                            {...field}
-                          />
-                        </FormControl>
-                        <Button type="button" variant="outline">
-                          <Upload className="h-4 w-4" />
-                        </Button>
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <FormField
-                    control={form.control}
-                    name="githubUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>GitHub Repository</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Github className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                            <Input
-                              placeholder="https://github.com/username/repo"
-                              className="pl-10"
-                              {...field}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="liveUrl"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Live Demo URL</FormLabel>
-                        <FormControl>
-                          <div className="relative">
-                            <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                            <Input
-                              placeholder="https://your-project.com"
-                              className="pl-10"
-                              {...field}
-                            />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5 text-orange-600" />
-                  Project Settings
-                </CardTitle>
-                <CardDescription>
-                  Configure project visibility and features
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <FormField
-                  control={form.control}
-                  name="featured"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                      <div className="space-y-0.5">
-                        <FormLabel className="flex items-center gap-2 text-base">
-                          <Star className="h-4 w-4 text-yellow-500" />
-                          Featured Project
-                        </FormLabel>
-                        <FormDescription>
-                          Highlight this project in your portfolio
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              </CardContent>
-            </Card>
-
-            {/* Submit Buttons */}
-            <div className="flex justify-end gap-4 py-6 border-t">
-              <Button type="button" variant="outline">
-                Save as Draft
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="flex items-center gap-2"
-              >
-                {isSubmitting ? (
-                  <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                    Creating...
-                  </>
-                ) : (
-                  <>
-                    <Save className="h-4 w-4" />
-                    Create Project
-                  </>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {/* Basic Information */}
+        <Card className="border-none shadow-none rounded-none">
+          <CardHeader>
+            <CardTitle>Basic Information</CardTitle>
+            <CardDescription>Core details about your project</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <FormField
+              control={form.control}
+              name="imageUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Project Image URL</FormLabel>
+                  <div className="flex gap-2">
+                    <FormControl>
+                      <Input
+                        placeholder="https://example.com/project-image.jpg"
+                        {...field}
+                        value={field.value || ""}
+                      />
+                    </FormControl>
+                    <EditProfilePhotoDialog
+                      currentPhoto={
+                        field.value
+                          ? `${process.env.NEXT_PUBLIC_API_URL}/images/file/${field.value}`
+                          : ""
+                      }
+                      onSave={(image: any) => field.onChange(image.id)}
+                    >
+                      <Button type="button" variant="outline">
+                        <Upload className="h-4 w-4" />
+                      </Button>
+                    </EditProfilePhotoDialog>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Project Title <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="E-commerce Platform" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </div>
+              />
 
-      {/* Sidebar with Preview */}
-      <div className="lg:col-span-1">
-        <ProjectPreview formData={watchedValues} />
-      </div>
-    </div>
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Category <span className="text-red-500">*</span>
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {projectCategories.map((category) => (
+                          <SelectItem
+                            key={category}
+                            value={category}
+                            className="capitalize"
+                          >
+                            {category}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Short Description <span className="text-red-500">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="A brief description of your project (1-2 sentences)"
+                      rows={2}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {field.value?.length || 0}/200 characters
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="longDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Detailed Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Provide a comprehensive description of your project, including features, challenges, and technical details..."
+                      rows={6}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    {field.value?.length || 0} characters
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Technical Details */}
+        <Card className="border-none shadow-none rounded-none">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Code className="h-5 w-5 text-green-600" />
+              Technical Details
+            </CardTitle>
+            <CardDescription>
+              Technologies used and project timeline
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <FormField
+              control={form.control}
+              name="technologies"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Technologies Used</FormLabel>
+                  <div className="space-y-4">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Add technology (e.g., React, Node.js)"
+                        value={newTechnology}
+                        onChange={(e) => setNewTechnology(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            addTechnology(newTechnology);
+                          }
+                        }}
+                      />
+                      <Button
+                        type="button"
+                        onClick={() => addTechnology(newTechnology)}
+                        variant="outline"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    {field.value.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {field.value.map((tech, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="flex items-center gap-1"
+                          >
+                            {tech}
+                            <X
+                              className="h-3 w-3 cursor-pointer hover:text-red-500"
+                              onClick={() => removeTechnology(tech)}
+                            />
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="space-y-3">
+                      <p className="text-sm text-gray-600">
+                        Quick add popular technologies:
+                      </p>
+                      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                        {commonTechnologies.slice(0, 16).map((tech) => (
+                          <Button
+                            key={tech}
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => addTechnology(tech)}
+                            disabled={field.value.includes(tech)}
+                            className="text-xs justify-start"
+                          >
+                            {tech}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Media & Links */}
+        <Card className="border-none shadow-none rounded-none">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ImageIcon className="h-5 w-5 text-purple-600" />
+              Media & Links
+            </CardTitle>
+            <CardDescription>Project images and external links</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="githubUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>GitHub Repository</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Github className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          placeholder="https://github.com/username/repo"
+                          className="pl-10"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="liveUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Live Demo URL</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <Globe className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                        <Input
+                          placeholder="https://your-project.com"
+                          className="pl-10"
+                          {...field}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Settings */}
+        <Card className="border-none shadow-none rounded-none">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Settings className="h-5 w-5 text-orange-600" />
+              Project Settings
+            </CardTitle>
+            <CardDescription>
+              Configure project visibility and features
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <FormField
+              control={form.control}
+              name="featured"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                  <div className="space-y-0.5">
+                    <FormLabel className="flex items-center gap-2 text-base">
+                      <Star className="h-4 w-4 text-yellow-500" />
+                      Featured Project
+                    </FormLabel>
+                    <FormDescription>
+                      Highlight this project in your portfolio
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </CardContent>
+        </Card>
+
+        {/* Submit Buttons */}
+        <SheetFooter className="flex justify-end gap-4 p-6 border-t sticky bottom-0 bg-card shadow-sm">
+          <Button type="button" variant="outline">
+            Save as Draft
+          </Button>
+          <Button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex items-center gap-2"
+          >
+            {isSubmitting ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                Creating...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4" />
+                Create Project
+              </>
+            )}
+          </Button>
+        </SheetFooter>
+      </form>
+    </Form>
   );
 }
 

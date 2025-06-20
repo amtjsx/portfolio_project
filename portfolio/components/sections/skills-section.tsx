@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 
+import { usePortfolio } from "@/app/portfolio";
 import {
   AnimatedList,
   AnimatedSection,
@@ -34,10 +35,9 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
-import { usePortfolio } from "@/app/portfolio";
 import { Achievement, Certificate, ProficiencyLevel } from "@/types/skills";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
 interface SkillCardProps {
   name: string;
@@ -1114,9 +1114,11 @@ function CategoryHeader({
 
 export function SkillsSection() {
   const { portfolio } = usePortfolio();
-  const [activeTab, setActiveTab] = useState(
-    portfolio?.skillCategories?.[0]?.id
-  );
+  const [activeTab, setActiveTab] = useState("");
+
+  useEffect(() => {
+    setActiveTab(portfolio?.skillCategories?.[0]?.name);
+  }, [portfolio?.skillCategories?.[0]?.name]);
 
   return (
     <section id="skills" className="py-20 md:py-32 relative overflow-hidden">

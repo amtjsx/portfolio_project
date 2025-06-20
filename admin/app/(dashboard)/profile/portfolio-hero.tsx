@@ -16,10 +16,12 @@ import {
 } from "lucide-react";
 import { EditHeroDialog } from "./edit/edit-hero-dialog";
 import { EditProfilePhotoDialog } from "./edit/edit-profile-photo-dialog";
+import { useCreate } from "@/hooks/use-create";
 
 export function PortfolioHero() {
   const { portfolio } = usePortfolio();
 
+  const { create } = useCreate({ title: "portfolio", url: "/portfolio" });
   const { data: skills } = useData<Skill>({
     keys: "skills",
   });
@@ -33,9 +35,15 @@ export function PortfolioHero() {
     console.log("Saving hero data:", data);
   };
 
-  const handlePhotoSave = (photoUrl: string) => {
+  const handlePhotoSave = async (image: any) => {
     // Here you would typically upload to your API/storage
-    console.log("Saving profile photo:", photoUrl);
+
+    await create({
+      data: {
+        id: portfolio?.id,
+        profileImageId: image.id,
+      },
+    });
   };
 
   if (!portfolio) {

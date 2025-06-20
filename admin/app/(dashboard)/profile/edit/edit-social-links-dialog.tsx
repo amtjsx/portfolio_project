@@ -2,10 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -24,13 +21,53 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Plus, Trash2 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useCreate } from "@/hooks/use-create";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import * as z from "zod";
+
+// Social platform options based on backend enum
+const SOCIAL_PLATFORMS = [
+  { value: "linkedin", label: "LinkedIn" },
+  { value: "github", label: "GitHub" },
+  { value: "twitter", label: "Twitter/X" },
+  { value: "instagram", label: "Instagram" },
+  { value: "facebook", label: "Facebook" },
+  { value: "youtube", label: "YouTube" },
+  { value: "dribbble", label: "Dribbble" },
+  { value: "behance", label: "Behance" },
+  { value: "medium", label: "Medium" },
+  { value: "dev", label: "Dev.to" },
+  { value: "stackoverflow", label: "Stack Overflow" },
+  { value: "codepen", label: "CodePen" },
+  { value: "discord", label: "Discord" },
+  { value: "telegram", label: "Telegram" },
+  { value: "whatsapp", label: "WhatsApp" },
+  { value: "tiktok", label: "TikTok" },
+  { value: "snapchat", label: "Snapchat" },
+  { value: "pinterest", label: "Pinterest" },
+  { value: "reddit", label: "Reddit" },
+  { value: "twitch", label: "Twitch" },
+  { value: "spotify", label: "Spotify" },
+  { value: "website", label: "Personal Website" },
+  { value: "blog", label: "Blog" },
+  { value: "other", label: "Other" },
+] as const;
 
 const socialLinkSchema = z.object({
-  platform: z.string().min(1, "Platform name is required"),
+  platform: z.enum(SOCIAL_PLATFORMS.map(p => p.value) as [string, ...string[]], {
+    required_error: "Please select a platform",
+  }),
   url: z.string().url("Please enter a valid URL"),
 });
 
@@ -116,12 +153,20 @@ export function EditSocialLinksDialog({
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Platform</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="e.g., GitHub, LinkedIn, Website"
-                              {...field}
-                            />
-                          </FormControl>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select a platform" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {SOCIAL_PLATFORMS.map((platform) => (
+                                <SelectItem key={platform.value} value={platform.value}>
+                                  {platform.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                           <FormMessage />
                         </FormItem>
                       )}

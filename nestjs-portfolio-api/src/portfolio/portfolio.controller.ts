@@ -7,7 +7,6 @@ import {
   Param,
   Patch,
   Post,
-  Put,
   Request,
   UploadedFile,
   UseGuards,
@@ -22,11 +21,11 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { UploadService } from "../upload/upload.service";
 import { CreatePortfolioDto } from "./dto/create-portfolio.dto";
 import { UpdatePortfolioDto } from "./dto/update-portfolio.dto";
 import { PortfolioService } from "./portfolio.service";
-import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 
 @ApiTags("portfolio")
 @Controller("portfolio")
@@ -167,9 +166,13 @@ export class PortfolioController {
   @ApiBody({ type: UpdatePortfolioDto })
   @ApiResponse({ status: 200, description: "Portfolio updated successfully" })
   @ApiResponse({ status: 404, description: "Portfolio not found" })
-  updatePortfolio(@Param("id") id: string, @Body() updatePortfolioDto: any) {
+  updatePortfolio(
+    @Param("id") id: string,
+    @Body() updatePortfolioDto: any,
+    @Request() request: any
+  ) {
     console.log("update portfolio", id, updatePortfolioDto);
-    return this.portfolioService.update(id, updatePortfolioDto);
+    return this.portfolioService.update(id, updatePortfolioDto, request.user);
   }
 
   @Delete(":id")
@@ -231,7 +234,8 @@ export class PortfolioController {
   @UseInterceptors(FileInterceptor("resume"))
   async uploadPortfolioResume(
     @Param("id") id: string,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
+    @Request() request: any
   ) {
     if (!file) {
       throw new BadRequestException("No resume file uploaded");
@@ -247,7 +251,11 @@ export class PortfolioController {
 
     // Update portfolio with resume URL
     const updateDto = { resumeUrl: fileInfo.url };
-    const updatedPortfolio = await this.portfolioService.update(id, updateDto);
+    const updatedPortfolio = await this.portfolioService.update(
+      id,
+      updateDto,
+      request.user
+    );
 
     return {
       portfolio: updatedPortfolio,
@@ -279,7 +287,8 @@ export class PortfolioController {
   @UseInterceptors(FileInterceptor("image"))
   async uploadPortfolioCoverImage(
     @Param("id") id: string,
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
+    @Request() request: any
   ) {
     if (!file) {
       throw new BadRequestException("No image file uploaded");
@@ -296,7 +305,11 @@ export class PortfolioController {
 
     // Update portfolio with cover image URL
     const updateDto = { coverImageUrl: fileInfo.url };
-    const updatedPortfolio = await this.portfolioService.update(id, updateDto);
+    const updatedPortfolio = await this.portfolioService.update(
+      id,
+      updateDto,
+      request.user
+    );
 
     return {
       portfolio: updatedPortfolio,

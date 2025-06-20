@@ -3,9 +3,10 @@ export interface Project {
   id: string;
   title: string;
   description: string;
-  imageId: string;
+  imageUrl: string;
   url: string;
   githubUrl: string;
+  liveUrl: string;
   technologies: string[];
   portfolioId: string;
   startDate: string;

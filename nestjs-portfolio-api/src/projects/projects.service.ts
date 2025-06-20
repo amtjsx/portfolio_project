@@ -109,23 +109,4 @@ export class ProjectsService {
       total: projects.length,
     };
   }
-
-  async findByStatus(status: string) {
-    const projects = await this.projectModel.findAll({
-      where: { status },
-      include: [
-        {
-          model: User,
-          attributes: ["id", "firstName", "lastName"],
-        },
-      ],
-      order: [["createdAt", "DESC"]],
-    });
-
-    return {
-      data: projects,
-      total: projects.length,
-      status,
-    };
-  }
 }

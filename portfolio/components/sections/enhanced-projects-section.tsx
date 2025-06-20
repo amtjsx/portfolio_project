@@ -491,7 +491,11 @@ export function EnhancedProjectsSection() {
             >
               {filteredProjects.map((project, index) => (
                 <GlassProjectCard
-                  image={""}
+                  image={
+                    project.imageUrl
+                      ? `${process.env.NEXT_PUBLIC_API_URL}/images/file/${project.imageUrl}`
+                      : ""
+                  }
                   tags={[]}
                   link={""}
                   key={`${filter}-${project.title}`}

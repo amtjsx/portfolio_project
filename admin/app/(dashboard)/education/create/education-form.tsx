@@ -29,13 +29,15 @@ import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreate } from "@/hooks/use-create";
+import { useDelete } from "@/hooks/use-delete";
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, X } from "lucide-react";
+import { CalendarIcon, Plus, Upload, X } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { EditProfilePhotoDialog } from "../../profile/edit/edit-profile-photo-dialog";
 
 // Enums matching your model
 enum EducationType {
@@ -58,7 +60,7 @@ const educationFormSchema = z.object({
     .string()
     .min(1, "Institution name is required")
     .max(255, "Institution name must be less than 255 characters"),
-  institutionLogo: z.string().url("Must be a valid URL").optional(),
+  institutionLogo: z.string().optional().nullable(),
   institutionUrl: z.string().url("Must be a valid URL").optional(),
   degree: z
     .string()
@@ -227,11 +229,52 @@ export function EducationForm({
   const isCurrent = form.watch("isCurrent");
   const isVerified = form.watch("isVerified");
 
+  const { remove, deleting } = useDelete({
+    title: "education",
+    url: "/education",
+  });
+
   return (
     <div className="space-y-6">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <FormField
+            control={form.control}
+            name="institutionLogo"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Institution Logo URL</FormLabel>
+                <FormControl>
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      placeholder="https://university.edu/logo.png"
+                      {...field}
+                    />
+                    <EditProfilePhotoDialog
+                      currentPhoto={
+                        field.value
+                          ? `${process.env.NEXT_PUBLIC_API_URL}/images/file/${field.value}`
+                          : ""
+                      }
+                      onSave={(image) => {
+                        field.onChange(image.id);
+                      }}
+                    >
+                      <Button type="button" size={"icon"} variant={"outline"}>
+                        <Upload className="h-4 w-4" />
+                      </Button>
+                    </EditProfilePhotoDialog>
+                  </div>
+                </FormControl>
+                <FormDescription>
+                  URL to the institution's logo image
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           {/* Basic Information */}
+
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -544,26 +587,6 @@ export function EducationForm({
                   <FormControl>
                     <Input placeholder="https://university.edu" {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="institutionLogo"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Institution Logo URL</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="https://university.edu/logo.png"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    URL to the institution's logo image
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -1131,28 +1154,41 @@ export function EducationForm({
             )}
           />
 
-          {/* Form Actions */}
-          {JSON.stringify(form.formState.errors)}
-          <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="w-full sm:w-auto"
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={creating}
-              className="w-full sm:w-auto"
-            >
-              {creating
-                ? "Saving..."
-                : education
-                ? "Update Education"
-                : "Add Education"}
-            </Button>
+          <div className="flex justify-between">
+            {education && (
+              <Button
+                variant={"destructive"}
+                type="button"
+                onClick={async () => {
+                  await remove(education.id);
+                  onOpenChange(false);
+                }}
+              >
+                Delete
+              </Button>
+            )}
+            {/* Form Actions */}
+            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-4 border-t">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => onOpenChange(false)}
+                className="w-full sm:w-auto"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                disabled={creating}
+                className="w-full sm:w-auto"
+              >
+                {creating
+                  ? "Saving..."
+                  : education
+                  ? "Update Education"
+                  : "Add Education"}
+              </Button>
+            </div>
           </div>
         </form>
       </Form>

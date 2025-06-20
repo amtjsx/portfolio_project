@@ -1,11 +1,11 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Filter, GraduationCap } from "lucide-react";
-import { EducationFormSheet } from "./create/education-form-sheet";
-import { useState } from "react";
+import { Filter, GraduationCap, PlusCircle } from "lucide-react";
+import { useCreateEducationStore } from "./create/use-create-education-store";
 
 export function EducationHeader() {
-  const [open, setOpen] = useState(false);
+  const setOpen = useCreateEducationStore((state) => state.setOpen);
+
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 lg:mb-8">
       <div className="space-y-1">
@@ -29,7 +29,6 @@ export function EducationHeader() {
           <span className="sm:inline">Add Education</span>
         </Button>
       </div>
-      <EducationFormSheet open={open} onOpenChange={setOpen} />
     </div>
   );
 }

@@ -55,16 +55,6 @@ export class ProjectsController {
     return this.projectsService.findFeatured();
   }
 
-  @Get("status/:status")
-  @ApiOperation({ summary: "Get projects by status" })
-  @ApiResponse({
-    status: 200,
-    description: "Projects by status retrieved successfully",
-  })
-  findByStatus(@Param("status") status: string) {
-    return this.projectsService.findByStatus(status);
-  }
-
   @Get("user/:userId")
   @ApiOperation({ summary: "Get projects for a specific user" })
   @ApiResponse({

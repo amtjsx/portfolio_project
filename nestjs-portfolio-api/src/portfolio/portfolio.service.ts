@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Education } from "src/education/models/education.model";
 import { Experience } from "src/experience/models/experience.model";
+import { SkillCategory } from "src/skill/models/skill-category.model";
 import { Skill } from "src/skill/models/skill.model";
 import { Social } from "src/social/models/social.model";
 import { Project } from "../projects/models/project.model";
@@ -9,13 +10,14 @@ import { User } from "../user/models/user.model";
 import { CreatePortfolioDto } from "./dto/create-portfolio.dto";
 import { UpdatePortfolioDto } from "./dto/update-portfolio.dto";
 import { Portfolio } from "./models/portfolio.model";
-import { SkillCategory } from "src/skill/models/skill-category.model";
 
 @Injectable()
 export class PortfolioService {
   constructor(
     @InjectModel(Portfolio)
-    private readonly portfolioModel: typeof Portfolio
+    private readonly portfolioModel: typeof Portfolio,
+    @InjectModel(Social)
+    private readonly socialModel: typeof Social
   ) {}
 
   // Legacy methods for backward compatibility
@@ -140,6 +142,7 @@ export class PortfolioService {
     const portfolio = await this.portfolioModel.findByPk(id, {
       attributes: [
         "id",
+        "name",
         "title",
         "summary",
         "customDomain",
@@ -170,6 +173,8 @@ export class PortfolioService {
     if (!portfolio) {
       throw new NotFoundException(`Portfolio with ID ${id} not found`);
     }
+
+    console.log("protfolio social links", portfolio.socialLinks);
 
     return portfolio;
   }
@@ -243,10 +248,20 @@ export class PortfolioService {
       publishedAt: createPortfolioDto.isPublished ? new Date() : null,
     });
 
+    if (socialLinks && socialLinks.length > 0)
+      await this.socialModel.bulkCreate(
+        socialLinks.map((link) => ({
+          userId: user.id,
+          portfolioId: portfolio.id,
+          platform: link.platform as any,
+          url: link.url,
+        }))
+      );
+
     return portfolio;
   }
 
-  async update(id: string, updatePortfolioDto: UpdatePortfolioDto) {
+  async update(id: string, updatePortfolioDto: UpdatePortfolioDto, user: User) {
     const portfolio = await this.portfolioModel.findByPk(id);
 
     if (!portfolio) {
@@ -263,6 +278,18 @@ export class PortfolioService {
 
     const { socialLinks, ...rest } = updatePortfolioDto;
     await portfolio.update(rest);
+
+    if (socialLinks && socialLinks.length > 0) {
+      await this.socialModel.destroy({ where: { portfolioId: id } });
+      await this.socialModel.bulkCreate(
+        socialLinks.map((link) => ({
+          userId: user.id,
+          portfolioId: portfolio.id,
+          platform: link.platform as any,
+          url: link.url,
+        }))
+      );
+    }
     return portfolio;
   }
 

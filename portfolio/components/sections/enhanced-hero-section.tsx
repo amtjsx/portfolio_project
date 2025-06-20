@@ -21,6 +21,7 @@ export function EnhancedHeroSection() {
   const opacity = useTransform(scrollY, [0, 300], [1, 0]);
 
   const { portfolio } = usePortfolio();
+
   return (
     <section className="relative overflow-hidden min-h-screen flex items-center">
       {/* Animated background elements */}
@@ -262,7 +263,7 @@ export function EnhancedHeroSection() {
                 transition={{ delay: 1.8 }}
               >
                 <span className="font-medium">
-                  +{portfolio?.projects.length}
+                  +{portfolio?.projects?.length}
                 </span>{" "}
                 completed for clients worldwide
               </motion.div>
@@ -312,9 +313,14 @@ export function EnhancedHeroSection() {
                   }}
                 >
                   <Image
-                    src="/professional-portrait.png"
+                    src={
+                      portfolio.profileImageId
+                        ? `${process.env.NEXT_PUBLIC_API_URL}/images/file/${portfolio.profileImageId}`
+                        : "/professional-portrait.png"
+                    }
                     alt="Alex Morgan - Professional Portrait"
-                    fill
+                    width={500}
+                    height={500}
                     className="object-cover transition-transform duration-700 group-hover:scale-105"
                     priority
                   />

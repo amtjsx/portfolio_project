@@ -5,7 +5,6 @@ import { useData } from "@/hooks/use-infinite-data";
 import { Education } from "@/types/education";
 import { useState } from "react";
 import { EducationCard } from "./education-card";
-import { EducationFilters } from "./education-filters";
 import { HighlightedEducationCard } from "./highlighted-education-card";
 
 export function EducationList() {
@@ -21,59 +20,8 @@ export function EducationList() {
   const completedEducation = education.filter((edu) => !edu.isCurrent);
   const verifiedEducation = education.filter((edu) => edu.isVerified);
 
-  // Group by education type
-  const educationByType = education.reduce((acc, edu) => {
-    const type = edu.educationType || "other";
-    if (!acc[type]) {
-      acc[type] = [];
-    }
-    acc[type].push(edu);
-    return acc;
-  }, {} as Record<string, typeof education>);
-
-  const handleFilterChange = (filters: any) => {
-    let filtered = [...education];
-
-    // Filter by education type
-    if (filters.educationType && filters.educationType !== "all") {
-      filtered = filtered.filter(
-        (edu) => edu.educationType === filters.educationType
-      );
-    }
-
-    // Filter by status
-    if (filters.status === "current") {
-      filtered = filtered.filter((edu) => edu.isCurrent);
-    } else if (filters.status === "completed") {
-      filtered = filtered.filter((edu) => !edu.isCurrent);
-    }
-
-    // Filter by verification status
-    if (filters.verified === "verified") {
-      filtered = filtered.filter((edu) => edu.isVerified);
-    } else if (filters.verified === "unverified") {
-      filtered = filtered.filter((edu) => !edu.isVerified);
-    }
-
-    // Search filter
-    if (filters.search) {
-      const searchTerm = filters.search.toLowerCase();
-      filtered = filtered.filter(
-        (edu) =>
-          edu.institutionName.toLowerCase().includes(searchTerm) ||
-          edu.degree.toLowerCase().includes(searchTerm) ||
-          edu.fieldOfStudy.toLowerCase().includes(searchTerm) ||
-          edu.description?.toLowerCase().includes(searchTerm)
-      );
-    }
-
-    return filtered;
-  };
-
   return (
     <div className="space-y-6 lg:space-y-8">
-      <EducationFilters onFilterChange={handleFilterChange} />
-
       <Tabs defaultValue="all" className="w-full" onValueChange={setActiveTab}>
         <div className="overflow-x-auto">
           <TabsList className="mb-6 w-full sm:w-auto">

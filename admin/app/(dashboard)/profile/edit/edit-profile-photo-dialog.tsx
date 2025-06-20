@@ -19,7 +19,6 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { usePortfolio } from "@/contexts/portfolio-provider";
-import { useCreate } from "@/hooks/use-create";
 import { uploadProfileImage } from "@/services/image-service";
 import { Loader2, RotateCw, Upload, ZoomOut } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
@@ -40,7 +39,7 @@ interface Area {
 interface EditProfilePhotoDialogProps {
   children: React.ReactNode;
   currentPhoto: string;
-  onSave: (photoUrl: string) => void;
+  onSave: (photoUrl: any) => void;
 }
 
 export function EditProfilePhotoDialog({
@@ -67,7 +66,6 @@ export function EditProfilePhotoDialog({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { portfolio } = usePortfolio();
-  const { create } = useCreate({ title: "portfolio", url: "/portfolio" });
 
   const onCropComplete = useCallback(
     (croppedArea: Area, croppedAreaPixels: Area) => {
@@ -228,12 +226,8 @@ export function EditProfilePhotoDialog({
 
       console.log("uploadedImage", uploadedImage);
 
-      await create({
-        data: { id: portfolio?.id, profileImageId: uploadedImage.id },
-      });
-
       // Call the onSave callback with the uploaded image URL
-      onSave(uploadedImage.url);
+      onSave(uploadedImage);
       setOpen(false);
 
       // Reset form

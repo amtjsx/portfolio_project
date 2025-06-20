@@ -64,9 +64,13 @@ export class Portfolio extends BaseModel<Portfolio> {
   @Column({ type: DataType.UUID, allowNull: false })
   userId: string;
 
+  @ApiProperty({ description: "Name", example: "Alex Morgan " })
+  @Column({ type: DataType.STRING, allowNull: false })
+  name: string;
+
   @ApiProperty({
     description: "Portfolio title",
-    example: "John Doe - Full Stack Developer",
+    example: "Full Stack Developer",
   })
   @Column({ type: DataType.STRING, allowNull: false })
   title: string;
@@ -85,26 +89,26 @@ export class Portfolio extends BaseModel<Portfolio> {
   })
   summary: string;
 
-  @ApiProperty({
-    description: "Portfolio email",
-    example: "john@example.com",
-  })
-  @Column({ type: DataType.STRING, allowNull: false })
-  email: string;
+  // @ApiProperty({
+  //   description: "Portfolio email",
+  //   example: "john@example.com",
+  // })
+  // @Column({ type: DataType.STRING, allowNull: false })
+  // email: string;
 
-  @ApiProperty({
-    description: "Portfolio phone number",
-    example: "123-456-7890",
-  })
-  @Column({ type: DataType.STRING, allowNull: true })
-  phoneNumber: string;
+  // @ApiProperty({
+  //   description: "Portfolio phone number",
+  //   example: "123-456-7890",
+  // })
+  // @Column({ type: DataType.STRING, allowNull: true })
+  // phoneNumber: string;
 
-  @ApiProperty({
-    description: "Portfolio location",
-    example: "New York, USA",
-  })
-  @Column({ type: DataType.STRING, allowNull: true })
-  location: string;
+  // @ApiProperty({
+  //   description: "Portfolio location",
+  //   example: "New York, USA",
+  // })
+  // @Column({ type: DataType.STRING, allowNull: true })
+  // location: string;
 
   @ApiProperty({
     description: "Portfolio theme",

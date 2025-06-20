@@ -1,23 +1,16 @@
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { CreateProjectForm } from "./page";
-import { Project } from "@/types/project";
+import { useCreateProjectStore } from "./use-create-project-store";
 
-function CreateProjectSheet({
-  open,
-  onOpenChange,
-  project,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  project?: Partial<Project>;
-}) {
+function CreateProjectSheet() {
+  const { open, setOpen, defaultValue } = useCreateProjectStore();
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent className="w-full lg:max-w-5xl p-0 overflow-y-auto">
         <CreateProjectForm
           open={open}
-          onOpenChange={onOpenChange}
-          project={project}
+          onOpenChange={setOpen}
+          project={defaultValue}
         />
       </SheetContent>
     </Sheet>

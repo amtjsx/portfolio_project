@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { EducationHeader } from "./education-header";
 import { EducationList } from "./education-list";
 import { EducationLoading } from "./education-loading";
+import { EducationFormSheet } from "./create/education-form-sheet";
 
 export default function EducationPage() {
   return (
@@ -10,6 +11,7 @@ export default function EducationPage() {
       <Suspense fallback={<EducationLoading />}>
         <EducationList />
       </Suspense>
+      <EducationFormSheet />
     </div>
   );
 }

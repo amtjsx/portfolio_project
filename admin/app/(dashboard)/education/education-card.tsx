@@ -1,23 +1,25 @@
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Education } from "@/types/education";
 import {
+  Award,
   CalendarIcon,
+  CheckCircle,
+  Edit,
   ExternalLink,
+  Globe,
   MapPin,
   Star,
-  Award,
-  CheckCircle,
-  Globe,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import Link from "next/link";
-import { Education } from "@/types/education";
+import { useCreateEducationStore } from "./create/use-create-education-store";
 
 interface EducationCardProps {
   education: Education;
@@ -71,13 +73,32 @@ export function EducationCard({ education }: EducationCardProps) {
     return `${start} - ${end}`;
   };
 
+  const setOpen = useCreateEducationStore((state) => state.setOpen);
+  const setDefaultValue = useCreateEducationStore(
+    (state) => state.setDefaultValue
+  );
+
   return (
-    <Card className="group hover:shadow-lg transition-all duration-200 overflow-hidden flex flex-col h-full">
+    <Card className="group hover:shadow-lg relative transition-all duration-200 overflow-hidden flex flex-col h-full">
+      <Button
+        variant="ghost"
+        size="sm"
+        className="absolute top-0 right-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-full hover:text-primary z-10"
+        onClick={() => {
+          setOpen(true);
+          setDefaultValue(education);
+        }}
+      >
+        <Edit className="h-4 w-4" />
+      </Button>
       {/* Institution Logo/Header */}
       <div className="relative h-20 bg-gradient-to-r from-primary/10 to-primary/5 overflow-hidden">
         {education.institutionLogo ? (
           <img
-            src={education.institutionLogo || "/placeholder.svg"}
+            src={
+              `${process.env.NEXT_PUBLIC_API_URL}/images/file/${education.institutionLogo}` ||
+              "/placeholder.svg"
+            }
             alt={education.institutionName}
             className="w-full h-full object-contain p-4"
           />

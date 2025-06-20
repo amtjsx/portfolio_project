@@ -207,7 +207,7 @@ export function TextReveal({ children, delay = 0 }: { children: string; delay?: 
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, amount: 0.5 })
 
-  const words = children.split(" ")
+  const words = children?.split(" ")
 
   return (
     <span ref={ref} className="inline-block">

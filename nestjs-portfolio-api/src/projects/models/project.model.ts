@@ -144,28 +144,6 @@ export class Project extends BaseModel<Project> {
   })
   featured: boolean;
 
-  @ApiProperty({ description: "Project start date", example: "2023-01-01" })
-  @Column({
-    type: DataType.DATEONLY,
-    allowNull: true,
-  })
-  startDate?: string;
-
-  @ApiProperty({ description: "Project end date", required: false })
-  @Column({
-    type: DataType.DATEONLY,
-    allowNull: true,
-  })
-  endDate: string;
-
-  @ApiProperty({ description: "Project status", example: "completed" })
-  @Column({
-    type: DataType.ENUM("completed", "in-progress", "planned"),
-    allowNull: false,
-    defaultValue: "planned",
-  })
-  status: "completed" | "in-progress" | "planned";
-
   @ApiProperty({
     description: "Project creation timestamp",
     example: "2023-01-01T00:00:00.000Z",

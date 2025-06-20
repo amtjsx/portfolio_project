@@ -140,18 +140,7 @@ export class EducationService {
   }
 
   async findOne(id: string): Promise<Education> {
-    const education = await this.educationModel.findByPk(id, {
-      include: [
-        {
-          model: User,
-          attributes: ["id", "firstName", "lastName", "email"],
-        },
-        {
-          model: Portfolio,
-          attributes: ["id", "title", "slug"],
-        },
-      ],
-    });
+    const education = await this.educationModel.findByPk(id);
 
     if (!education) {
       throw new NotFoundException(`Education with ID ${id} not found`);
@@ -172,12 +161,6 @@ export class EducationService {
       order: [
         ["isCurrent", "DESC"],
         ["startDate", "DESC"],
-      ],
-      include: [
-        {
-          model: Portfolio,
-          attributes: ["id", "title", "slug"],
-        },
       ],
     });
   }

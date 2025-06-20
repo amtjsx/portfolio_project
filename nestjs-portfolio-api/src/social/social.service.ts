@@ -1,12 +1,11 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectModel } from "@nestjs/sequelize";
 import { Op } from "sequelize";
 import { Portfolio } from "../portfolio/models/portfolio.model";
 import { User } from "../user/models/user.model";
 import { CreateSocialDto } from "./dto/create-social.dto";
 import { UpdateSocialDto } from "./dto/update-social.dto";
 import { Social } from "./models/social.model";
-import { InjectModel } from "@nestjs/sequelize";
-import { mockSocialLinks } from "./data/mock-social-links";
 
 @Injectable()
 export class SocialService {
@@ -14,19 +13,9 @@ export class SocialService {
     @InjectModel(Social) private readonly socialModel: typeof Social
   ) {}
 
-  async findAll() {
-    const socialLinks = await this.socialModel.findAll({
-      include: [
-        {
-          model: User,
-          attributes: ["id", "firstName", "lastName", "username"],
-        },
-        {
-          model: Portfolio,
-          attributes: ["id", "title"],
-          required: false,
-        },
-      ],
+  async findAll(portfolioId: string) {
+    const socialLinks = await this.socialModel.findAndCountAll({
+      where: { portfolioId },
       order: [
         ["userId", "ASC"],
         ["displayOrder", "ASC"],
@@ -35,8 +24,8 @@ export class SocialService {
     });
 
     return {
-      data: mockSocialLinks,
-      total: mockSocialLinks.length,
+      data: socialLinks.rows,
+      total: socialLinks.count,
     };
   }
 

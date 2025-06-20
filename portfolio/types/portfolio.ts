@@ -7,6 +7,7 @@ import { Testimonial } from "./testimonials";
 
 export interface Portfolio {
   id: string;
+  name: string;
   title: string;
   subtitle: string;
   summary: string;

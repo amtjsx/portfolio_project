@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import Image from "next/image"
+import Image from "next/image";
 import {
   User,
   MapPin,
@@ -17,46 +17,57 @@ import {
   Clock,
   Target,
   Star,
-} from "lucide-react"
-import { motion } from "framer-motion"
-import { AnimatedSection, AnimatedTitle, FadeInWhenVisible } from "@/components/animated-section"
-import { ThemeAwareCard } from "@/components/theme-aware-animations"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import { useState } from "react"
-
-const personalInfo = {
-  name: "Alex Johnson",
-  title: "Full-Stack Developer & UI/UX Designer",
-  location: "San Francisco, CA",
-  experience: "5+ Years",
-  email: "alex@example.com",
-  phone: "+1 (555) 123-4567",
-  linkedin: "linkedin.com/in/alexjohnson",
-  github: "github.com/alexjohnson",
-}
+} from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  AnimatedSection,
+  AnimatedTitle,
+  FadeInWhenVisible,
+} from "@/components/animated-section";
+import { ThemeAwareCard } from "@/components/theme-aware-animations";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { useState } from "react";
+import { usePortfolio } from "@/app/portfolio";
 
 const stats = [
-  { icon: Code, label: "Projects Completed", value: "50+", color: "text-blue-500" },
-  { icon: Users, label: "Happy Clients", value: "30+", color: "text-green-500" },
+  {
+    icon: Code,
+    label: "Projects Completed",
+    value: "50+",
+    color: "text-blue-500",
+  },
+  {
+    icon: Users,
+    label: "Happy Clients",
+    value: "30+",
+    color: "text-green-500",
+  },
   { icon: Award, label: "Awards Won", value: "8", color: "text-purple-500" },
-  { icon: Clock, label: "Years Experience", value: "5+", color: "text-orange-500" },
-]
+  {
+    icon: Clock,
+    label: "Years Experience",
+    value: "5+",
+    color: "text-orange-500",
+  },
+];
 
 const timeline = [
   {
     year: "2024",
     title: "Senior Full-Stack Developer",
     company: "TechCorp Inc.",
-    description: "Leading development of enterprise applications with React and Node.js",
+    description:
+      "Leading development of enterprise applications with React and Node.js",
     type: "work",
   },
   {
     year: "2022",
     title: "Full-Stack Developer",
     company: "StartupXYZ",
-    description: "Built scalable web applications and improved performance by 40%",
+    description:
+      "Built scalable web applications and improved performance by 40%",
     type: "work",
   },
   {
@@ -70,10 +81,11 @@ const timeline = [
     year: "2020",
     title: "Computer Science Degree",
     company: "University of California",
-    description: "Bachelor's in Computer Science with focus on Software Engineering",
+    description:
+      "Bachelor's in Computer Science with focus on Software Engineering",
     type: "education",
   },
-]
+];
 
 const interests = [
   { icon: "🎨", label: "Design", description: "UI/UX and Visual Design" },
@@ -82,34 +94,38 @@ const interests = [
   { icon: "📸", label: "Photography", description: "Landscape & Portrait" },
   { icon: "🏔️", label: "Hiking", description: "Mountain Adventures" },
   { icon: "☕", label: "Coffee", description: "Third Wave Coffee Culture" },
-]
+];
 
 const values = [
   {
     icon: Target,
     title: "Quality First",
-    description: "I believe in delivering high-quality code and exceptional user experiences.",
+    description:
+      "I believe in delivering high-quality code and exceptional user experiences.",
     percentage: 95,
   },
   {
     icon: Users,
     title: "Collaboration",
-    description: "Working together with teams to achieve common goals and share knowledge.",
+    description:
+      "Working together with teams to achieve common goals and share knowledge.",
     percentage: 90,
   },
   {
     icon: Heart,
     title: "Passion",
-    description: "Passionate about creating meaningful digital experiences that make a difference.",
+    description:
+      "Passionate about creating meaningful digital experiences that make a difference.",
     percentage: 98,
   },
   {
     icon: Code,
     title: "Innovation",
-    description: "Always exploring new technologies and pushing the boundaries of what's possible.",
+    description:
+      "Always exploring new technologies and pushing the boundaries of what's possible.",
     percentage: 88,
   },
-]
+];
 
 const testimonials = [
   {
@@ -162,10 +178,14 @@ const testimonials = [
     project: "AI Content Generator",
     date: "2024",
   },
-]
+];
 
 export function AboutSection() {
-  const [activeTab, setActiveTab] = useState<"story" | "timeline" | "values" | "testimonials">("story")
+  const [activeTab, setActiveTab] = useState<
+    "story" | "timeline" | "values" | "testimonials"
+  >("story");
+
+  const { portfolio } = usePortfolio();
 
   return (
     <section id="about" className="py-20 md:py-32 relative overflow-hidden">
@@ -186,7 +206,8 @@ export function AboutSection() {
             <AnimatedTitle>About Me</AnimatedTitle>
             <FadeInWhenVisible delay={0.2}>
               <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
-                Passionate developer crafting digital experiences with modern technologies and creative solutions
+                Passionate developer crafting digital experiences with modern
+                technologies and creative solutions
               </p>
             </FadeInWhenVisible>
             <FadeInWhenVisible delay={0.3}>
@@ -203,7 +224,11 @@ export function AboutSection() {
                 <ThemeAwareCard className="p-8 text-center" intensity="medium">
                   <div className="relative mx-auto mb-6 h-48 w-48 overflow-hidden rounded-2xl">
                     <Image
-                      src="/about-image.png"
+                      src={
+                        portfolio.profileImageId
+                          ? `${process.env.NEXT_PUBLIC_API_URL}/images/file/${portfolio.profileImageId}`
+                          : "/about-image.png"
+                      }
                       alt="Profile"
                       fill
                       className="object-cover transition-transform duration-500 hover:scale-110"
@@ -211,17 +236,25 @@ export function AboutSection() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                   </div>
 
-                  <h3 className="text-2xl font-bold">{personalInfo.name}</h3>
-                  <p className="mt-2 text-lg text-primary font-medium">{personalInfo.title}</p>
+                  <h3 className="text-2xl font-bold">{portfolio.name}</h3>
+                  <p className="mt-2 text-lg text-primary font-medium">
+                    {portfolio.title}
+                  </p>
 
                   <div className="mt-4 flex flex-wrap justify-center gap-2">
-                    <Badge variant="secondary" className="flex items-center gap-1">
+                    <Badge
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
                       <MapPin className="h-3 w-3" />
-                      {personalInfo.location}
+                      {portfolio.location}
                     </Badge>
-                    <Badge variant="secondary" className="flex items-center gap-1">
+                    <Badge
+                      variant="secondary"
+                      className="flex items-center gap-1"
+                    >
                       <Calendar className="h-3 w-3" />
-                      {personalInfo.experience}
+                      {portfolio.experience}
                     </Badge>
                   </div>
 
@@ -230,7 +263,11 @@ export function AboutSection() {
                       <Download className="h-4 w-4" />
                       Download CV
                     </Button>
-                    <Button size="sm" variant="outline" className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex items-center gap-2"
+                    >
                       <Mail className="h-4 w-4" />
                       Contact
                     </Button>
@@ -245,19 +282,19 @@ export function AboutSection() {
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 text-sm">
                       <Mail className="h-4 w-4 text-primary" />
-                      <span>{personalInfo.email}</span>
+                      <span>{portfolio.contact?.email}</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
                       <Phone className="h-4 w-4 text-primary" />
-                      <span>{personalInfo.phone}</span>
+                      <span>{portfolio.contact?.phone}</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
                       <Linkedin className="h-4 w-4 text-primary" />
-                      <span>{personalInfo.linkedin}</span>
+                      <span>{portfolio?.contact?.linkedin}</span>
                     </div>
                     <div className="flex items-center gap-3 text-sm">
                       <Github className="h-4 w-4 text-primary" />
-                      <span>{personalInfo.github}</span>
+                      <span>{portfolio?.contact?.github}</span>
                     </div>
                   </div>
                 </ThemeAwareCard>
@@ -274,10 +311,17 @@ export function AboutSection() {
                       transition={{ delay: index * 0.1 }}
                       viewport={{ once: true }}
                     >
-                      <ThemeAwareCard className="p-4 text-center" intensity="subtle">
-                        <stat.icon className={`mx-auto mb-2 h-6 w-6 ${stat.color}`} />
+                      <ThemeAwareCard
+                        className="p-4 text-center"
+                        intensity="subtle"
+                      >
+                        <stat.icon
+                          className={`mx-auto mb-2 h-6 w-6 ${stat.color}`}
+                        />
                         <div className="text-2xl font-bold">{stat.value}</div>
-                        <div className="text-xs text-muted-foreground">{stat.label}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {stat.label}
+                        </div>
                       </ThemeAwareCard>
                     </motion.div>
                   ))}
@@ -325,31 +369,41 @@ export function AboutSection() {
                       <h3 className="text-2xl font-bold">My Journey in Tech</h3>
                       <div className="space-y-4 text-muted-foreground">
                         <p>
-                          My passion for technology began at age 15 when I built my first website. What started as
-                          curiosity quickly evolved into a deep love for creating digital experiences that solve
-                          real-world problems.
+                          My passion for technology began at age 15 when I built
+                          my first website. What started as curiosity quickly
+                          evolved into a deep love for creating digital
+                          experiences that solve real-world problems.
                         </p>
                         <p>
-                          Over the past 5 years, I've had the privilege of working with amazing teams and clients,
-                          building everything from small business websites to large-scale enterprise applications. Each
-                          project has taught me something new and reinforced my belief in the power of technology to
-                          make a positive impact.
+                          Over the past 5 years, I've had the privilege of
+                          working with amazing teams and clients, building
+                          everything from small business websites to large-scale
+                          enterprise applications. Each project has taught me
+                          something new and reinforced my belief in the power of
+                          technology to make a positive impact.
                         </p>
                         <p>
-                          I specialize in full-stack development with a focus on React, Node.js, and modern web
-                          technologies. I'm passionate about writing clean, maintainable code and creating intuitive
-                          user experiences that delight users and drive business results.
+                          I specialize in full-stack development with a focus on
+                          React, Node.js, and modern web technologies. I'm
+                          passionate about writing clean, maintainable code and
+                          creating intuitive user experiences that delight users
+                          and drive business results.
                         </p>
                         <p>
-                          When I'm not coding, you'll find me exploring new hiking trails, experimenting with
-                          photography, or discovering the latest coffee shops in the city. I believe that diverse
-                          experiences outside of tech make me a better developer and more creative problem solver.
+                          When I'm not coding, you'll find me exploring new
+                          hiking trails, experimenting with photography, or
+                          discovering the latest coffee shops in the city. I
+                          believe that diverse experiences outside of tech make
+                          me a better developer and more creative problem
+                          solver.
                         </p>
                       </div>
 
                       {/* Interests */}
                       <div className="mt-8">
-                        <h4 className="mb-4 text-lg font-semibold">Interests & Hobbies</h4>
+                        <h4 className="mb-4 text-lg font-semibold">
+                          Interests & Hobbies
+                        </h4>
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                           {interests.map((interest, index) => (
                             <motion.div
@@ -361,8 +415,12 @@ export function AboutSection() {
                             >
                               <span className="text-lg">{interest.icon}</span>
                               <div>
-                                <div className="font-medium">{interest.label}</div>
-                                <div className="text-xs text-muted-foreground">{interest.description}</div>
+                                <div className="font-medium">
+                                  {interest.label}
+                                </div>
+                                <div className="text-xs text-muted-foreground">
+                                  {interest.description}
+                                </div>
                               </div>
                             </motion.div>
                           ))}
@@ -378,7 +436,9 @@ export function AboutSection() {
                       transition={{ duration: 0.5 }}
                       className="space-y-6"
                     >
-                      <h3 className="text-2xl font-bold">Professional Timeline</h3>
+                      <h3 className="text-2xl font-bold">
+                        Professional Timeline
+                      </h3>
                       <div className="relative">
                         {/* Timeline line */}
                         <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gradient-to-b from-primary to-secondary" />
@@ -395,7 +455,9 @@ export function AboutSection() {
                               {/* Timeline dot */}
                               <div
                                 className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 ${
-                                  item.type === "work" ? "bg-primary border-primary" : "bg-secondary border-secondary"
+                                  item.type === "work"
+                                    ? "bg-primary border-primary"
+                                    : "bg-secondary border-secondary"
                                 }`}
                               >
                                 {item.type === "work" ? (
@@ -408,11 +470,25 @@ export function AboutSection() {
                               {/* Content */}
                               <div className="flex-1 pb-8">
                                 <div className="flex items-center gap-3 mb-2">
-                                  <Badge variant={item.type === "work" ? "default" : "secondary"}>{item.year}</Badge>
-                                  <h4 className="font-semibold">{item.title}</h4>
+                                  <Badge
+                                    variant={
+                                      item.type === "work"
+                                        ? "default"
+                                        : "secondary"
+                                    }
+                                  >
+                                    {item.year}
+                                  </Badge>
+                                  <h4 className="font-semibold">
+                                    {item.title}
+                                  </h4>
                                 </div>
-                                <p className="text-primary font-medium mb-2">{item.company}</p>
-                                <p className="text-sm text-muted-foreground">{item.description}</p>
+                                <p className="text-primary font-medium mb-2">
+                                  {item.company}
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                  {item.description}
+                                </p>
                               </div>
                             </motion.div>
                           ))}
@@ -428,10 +504,14 @@ export function AboutSection() {
                       transition={{ duration: 0.5 }}
                       className="space-y-6"
                     >
-                      <h3 className="text-2xl font-bold">Core Values & Principles</h3>
+                      <h3 className="text-2xl font-bold">
+                        Core Values & Principles
+                      </h3>
                       <p className="text-muted-foreground">
-                        These values guide my approach to development and collaboration, ensuring I deliver exceptional
-                        results while maintaining integrity and fostering positive relationships.
+                        These values guide my approach to development and
+                        collaboration, ensuring I deliver exceptional results
+                        while maintaining integrity and fostering positive
+                        relationships.
                       </p>
 
                       <div className="space-y-6">
@@ -449,11 +529,18 @@ export function AboutSection() {
                               </div>
                               <div className="flex-1">
                                 <h4 className="font-semibold">{value.title}</h4>
-                                <p className="text-sm text-muted-foreground">{value.description}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {value.description}
+                                </p>
                               </div>
-                              <div className="text-sm font-medium text-primary">{value.percentage}%</div>
+                              <div className="text-sm font-medium text-primary">
+                                {value.percentage}%
+                              </div>
                             </div>
-                            <Progress value={value.percentage} className="h-2" />
+                            <Progress
+                              value={value.percentage}
+                              className="h-2"
+                            />
                           </motion.div>
                         ))}
                       </div>
@@ -467,18 +554,28 @@ export function AboutSection() {
                       className="space-y-6"
                     >
                       <div className="text-center mb-8">
-                        <h3 className="text-2xl font-bold mb-2">What Clients Say</h3>
+                        <h3 className="text-2xl font-bold mb-2">
+                          What Clients Say
+                        </h3>
                         <p className="text-muted-foreground">
-                          Real feedback from clients I've had the pleasure of working with
+                          Real feedback from clients I've had the pleasure of
+                          working with
                         </p>
                         <div className="flex items-center justify-center gap-2 mt-4">
                           <div className="flex">
                             {[...Array(5)].map((_, i) => (
-                              <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                              <Star
+                                key={i}
+                                className="h-5 w-5 fill-yellow-400 text-yellow-400"
+                              />
                             ))}
                           </div>
-                          <span className="text-sm font-medium">5.0 average rating</span>
-                          <span className="text-sm text-muted-foreground">({testimonials.length} reviews)</span>
+                          <span className="text-sm font-medium">
+                            5.0 average rating
+                          </span>
+                          <span className="text-sm text-muted-foreground">
+                            ({testimonials.length} reviews)
+                          </span>
                         </div>
                       </div>
 
@@ -512,7 +609,10 @@ export function AboutSection() {
                               {/* Rating */}
                               <div className="flex items-center gap-1 mb-3">
                                 {[...Array(testimonial.rating)].map((_, i) => (
-                                  <Star key={i} className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                  <Star
+                                    key={i}
+                                    className="h-4 w-4 fill-yellow-400 text-yellow-400"
+                                  />
                                 ))}
                               </div>
 
@@ -526,15 +626,21 @@ export function AboutSection() {
                                 <div className="flex items-center gap-3">
                                   <div className="relative h-12 w-12 overflow-hidden rounded-full border-2 border-primary/20">
                                     <Image
-                                      src={testimonial.image || "/placeholder.svg"}
+                                      src={
+                                        testimonial.image || "/placeholder.svg"
+                                      }
                                       alt={testimonial.author}
                                       fill
                                       className="object-cover"
                                     />
                                   </div>
                                   <div>
-                                    <h4 className="font-semibold text-foreground">{testimonial.author}</h4>
-                                    <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                                    <h4 className="font-semibold text-foreground">
+                                      {testimonial.author}
+                                    </h4>
+                                    <p className="text-sm text-muted-foreground">
+                                      {testimonial.role}
+                                    </p>
                                   </div>
                                 </div>
 
@@ -542,7 +648,9 @@ export function AboutSection() {
                                   <Badge variant="outline" className="mb-1">
                                     {testimonial.project}
                                   </Badge>
-                                  <p className="text-xs text-muted-foreground">{testimonial.date}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {testimonial.date}
+                                  </p>
                                 </div>
                               </div>
 
@@ -561,8 +669,12 @@ export function AboutSection() {
                           transition={{ delay: 0.5 }}
                           className="text-center p-4 rounded-lg bg-muted/50"
                         >
-                          <div className="text-2xl font-bold text-primary">100%</div>
-                          <div className="text-sm text-muted-foreground">Client Satisfaction</div>
+                          <div className="text-2xl font-bold text-primary">
+                            100%
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Client Satisfaction
+                          </div>
                         </motion.div>
                         <motion.div
                           initial={{ opacity: 0, scale: 0.9 }}
@@ -570,8 +682,12 @@ export function AboutSection() {
                           transition={{ delay: 0.6 }}
                           className="text-center p-4 rounded-lg bg-muted/50"
                         >
-                          <div className="text-2xl font-bold text-primary">95%</div>
-                          <div className="text-sm text-muted-foreground">Repeat Clients</div>
+                          <div className="text-2xl font-bold text-primary">
+                            95%
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Repeat Clients
+                          </div>
                         </motion.div>
                         <motion.div
                           initial={{ opacity: 0, scale: 0.9 }}
@@ -579,8 +695,12 @@ export function AboutSection() {
                           transition={{ delay: 0.7 }}
                           className="text-center p-4 rounded-lg bg-muted/50"
                         >
-                          <div className="text-2xl font-bold text-primary">48h</div>
-                          <div className="text-sm text-muted-foreground">Avg Response Time</div>
+                          <div className="text-2xl font-bold text-primary">
+                            48h
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            Avg Response Time
+                          </div>
                         </motion.div>
                       </div>
 
@@ -591,9 +711,12 @@ export function AboutSection() {
                         transition={{ delay: 0.8 }}
                         className="text-center mt-8 p-6 rounded-xl bg-gradient-to-r from-primary/10 to-secondary/10 border"
                       >
-                        <h4 className="text-lg font-semibold mb-2">Ready to Work Together?</h4>
+                        <h4 className="text-lg font-semibold mb-2">
+                          Ready to Work Together?
+                        </h4>
                         <p className="text-muted-foreground mb-4">
-                          Join these satisfied clients and let's create something amazing together.
+                          Join these satisfied clients and let's create
+                          something amazing together.
                         </p>
                         <Button className="flex items-center gap-2 mx-auto">
                           <Mail className="h-4 w-4" />
@@ -609,5 +732,5 @@ export function AboutSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

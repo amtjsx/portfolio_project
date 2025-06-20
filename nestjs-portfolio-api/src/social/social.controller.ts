@@ -10,6 +10,8 @@ import {
   Post,
   Put,
   Query,
+  Request,
+  UseGuards,
 } from "@nestjs/common";
 import {
   ApiBody,
@@ -19,6 +21,7 @@ import {
   ApiResponse,
   ApiTags,
 } from "@nestjs/swagger";
+import { JwtAuthGuard } from "src/auth/guards/jwt-auth.guard";
 import { CreateSocialDto } from "./dto/create-social.dto";
 import { UpdateSocialDto } from "./dto/update-social.dto";
 import { SocialService } from "./social.service";
@@ -34,8 +37,10 @@ export class SocialController {
     status: 200,
     description: "Social links retrieved successfully",
   })
-  findAll() {
-    return this.socialService.findAll();
+  @UseGuards(JwtAuthGuard)
+  findAll(@Request() request: any) {
+    console.log("rqu4st.user", request.user);
+    return this.socialService.findAll(request.user.id);
   }
 
   @Get("active")

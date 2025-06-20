@@ -7,31 +7,23 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { EducationForm } from "./education-form";
+import { useCreateEducationStore } from "./use-create-education-store";
 
-interface EducationFormSheetProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  education?: any;
-}
-
-export function EducationFormSheet({
-  open,
-  onOpenChange,
-  education,
-}: EducationFormSheetProps) {
+export function EducationFormSheet() {
+  const { open, setOpen, defaultValue } = useCreateEducationStore();
   return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent className="w-full sm:max-w-3xl overflow-y-auto">
         <SheetHeader>
           <SheetTitle>
-            {education ? "Edit Education" : "Add New Education"}
+            {defaultValue ? "Edit Education" : "Add New Education"}
           </SheetTitle>
         </SheetHeader>
         <div className="mt-6">
           <EducationForm
-            education={education}
+            education={defaultValue}
             open={open}
-            onOpenChange={onOpenChange}
+            onOpenChange={setOpen}
           />
         </div>
       </SheetContent>

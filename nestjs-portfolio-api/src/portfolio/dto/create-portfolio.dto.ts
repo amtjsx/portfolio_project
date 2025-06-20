@@ -1,15 +1,21 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
   IsArray,
   IsBoolean,
   IsHexColor,
   IsIn,
-  IsNumber,
   IsObject,
   IsOptional,
   IsString,
   IsUrl,
+  ValidateNested,
 } from "class-validator";
+
+export class CreateSocialLinkDto {
+  platform: string;
+  url: string;
+}
 
 export class CreatePortfolioDto {
   @ApiProperty({
@@ -153,16 +159,10 @@ export class CreatePortfolioDto {
     },
   })
   @IsOptional()
-  @IsObject()
-  socialLinks?: {
-    linkedin?: string;
-    github?: string;
-    twitter?: string;
-    instagram?: string;
-    youtube?: string;
-    dribbble?: string;
-    behance?: string;
-  };
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreatePortfolioDto)
+  socialLinks?: CreateSocialLinkDto[];
 
   @ApiProperty({
     description: "Portfolio settings",
